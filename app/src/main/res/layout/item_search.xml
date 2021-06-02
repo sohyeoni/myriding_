@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="200dp"
+    android:layout_marginVertical="4dp"
+    android:id="@+id/search_item_layout">
+
+    <ImageView
+        android:id="@+id/search_post_image"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:src="@drawable/ic_launcher_background"
+        android:scaleType="fitXY" />
+
+    <TextView
+        android:id="@+id/search_course_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0000-00-00"
+        android:textColor="@android:color/black"
+        android:textSize="12sp"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="8dp"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="160dp"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/search_course_gradient"
+        android:gravity="bottom">
+
+        <TextView
+            android:id="@+id/search_course_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="2dp"
+            android:text="course_name"
+            android:textSize="17sp"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/search_course_start_point"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="2dp"
+            android:layout_below="@+id/search_course_name"
+            android:text="StartPoint"
+            android:textSize="14sp"
+            android:textColor="@android:color/white"/>
+
+        <TextView
+            android:id="@+id/search_course_point_wave"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="2dp"
+            android:layout_below="@+id/search_course_name"
+            android:layout_toRightOf="@+id/search_course_start_point"
+            android:text="~"
+            android:textSize="14sp"
+            android:textColor="@android:color/white"/>
+
+        <TextView
+            android:id="@+id/search_course_end_point"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="2dp"
+            android:layout_below="@+id/search_course_name"
+            android:layout_toRightOf="@+id/search_course_point_wave"
+            android:text="EndPoint"
+            android:textSize="14sp"
+            android:textColor="@android:color/white"
+            android:maxLines="1"
+            android:inputType="text"/>
+
+        <TextView
+            android:id="@+id/search_course_distance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="2dp"
+            android:layout_below="@+id/search_course_start_point"
+            android:text="000.00 km"
+            android:textSize="14sp"
+            android:textColor="@android:color/white"/>
+
+        <TextView
+            android:id="@+id/stick"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/search_course_point_wave"
+            android:layout_toRightOf="@+id/search_course_distance"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="2dp"
+            android:text="|"
+            android:textSize="14sp"
+            android:textColor="@android:color/white"/>
+
+        <TextView
+            android:id="@+id/search_course_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="2dp"
+            android:layout_below="@+id/search_course_start_point"
+            android:layout_toRightOf="@+id/stick"
+            android:text="00시간 00분"
+            android:textSize="14sp"
+            android:textColor="@android:color/white"/>
+
+        <TextView
+            android:id="@+id/search_course_try_num"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/search_course_distance"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="2dp"
+            android:text="0,000명이 라이딩했어요!"
+            android:textSize="14sp"
+            android:textColor="@android:color/white"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="16dp"
+            android:layout_below="@+id/search_course_distance"
+            android:layout_alignParentRight="true"
+            android:gravity="center_vertical">
+
+            <ToggleButton
+                android:id="@+id/search_course_like_img"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:background="@drawable/like_button_selector"
+                android:layout_marginTop="2dp"
+                android:textOn=""
+                android:textOff="" />
+            <TextView
+                android:id="@+id/search_course_like"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="2dp"
+                android:text="00,000"
+                android:textSize="14sp"
+                android:textColor="@android:color/white"/>
+        </LinearLayout>
+    </RelativeLayout>
+
+</RelativeLayout>

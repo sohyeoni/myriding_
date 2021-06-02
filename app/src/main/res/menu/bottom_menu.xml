@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/home"
+        android:enabled="true"
+        android:icon="@drawable/ic_bn_home"
+        android:title="Home" />
+    <item
+        android:id="@+id/course"
+        android:enabled="true"
+        android:icon="@drawable/ic_bn_course"
+        android:title="Course" />
+    <item
+        android:id="@+id/riding"
+        android:enabled="true"
+        android:icon="@drawable/ic_bn_riding"
+        android:title="Riding" />
+    <item
+        android:id="@+id/rank"
+        android:enabled="true"
+        android:icon="@drawable/ic_bn_rank"
+        android:title="Rank" />
+    <item
+        android:id="@+id/profile"
+        android:enabled="true"
+        android:icon="@drawable/ic_bn_profile"
+        android:title="Profile" />
+</menu>

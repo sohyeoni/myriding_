@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:scrollbars="none"
+    tools:context=".activity.SearchActivity"
+    android:orientation="vertical"
+    android:background="@android:color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <!--  search bar xml  -->
+        <LinearLayout
+            android:id="@+id/searchBar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:gravity="center">
+
+            <EditText
+                android:id="@+id/search_keyword"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:background="@drawable/search_layout"
+                android:textSize="16sp"
+                android:hint="Search"
+                android:paddingStart="16dp"
+                android:layout_weight="1"
+                android:drawableStart="@drawable/ic_search"
+                android:drawablePadding="8dp"
+                android:maxLines="1"
+                android:inputType="text"
+                android:imeOptions="actionSearch" >
+                <requestFocus/>
+            </EditText>
+        </LinearLayout>
+
+        <!--  sort button xml  -->
+        <RadioGroup
+            android:id="@+id/sortRadioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp">
+
+            <RadioButton
+                android:id="@+id/sort_new"
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:background="@drawable/course_sort_button_selector"
+                android:button="@android:color/transparent"
+                android:checked="true"
+                android:gravity="center"
+                android:text="최신순"
+                android:textSize="13sp"
+                android:textColor="@android:color/white"
+                android:layout_weight="1"/>
+
+            <RadioButton
+                android:id="@+id/sort_like"
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:layout_marginLeft="4dp"
+                android:background="@drawable/course_sort_button_selector"
+                android:button="@android:color/transparent"
+                android:checked="false"
+                android:gravity="center"
+                android:text="좋아요순"
+                android:textSize="13sp"
+                android:textColor="@android:color/black"
+                android:layout_weight="1"/>
+
+            <RadioButton
+                android:id="@+id/sort_view"
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:layout_marginLeft="4dp"
+                android:background="@drawable/course_sort_button_selector"
+                android:button="@android:color/transparent"
+                android:checked="false"
+                android:gravity="center"
+                android:text="라이딩횟수순"
+                android:textSize="13sp"
+                android:textColor="@android:color/black"
+                android:layout_weight="1"/>
+
+            <RadioButton
+                android:id="@+id/sort_distance"
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:layout_marginLeft="4dp"
+                android:background="@drawable/course_sort_button_selector"
+                android:button="@android:color/transparent"
+                android:checked="false"
+                android:gravity="center"
+                android:text="거리순"
+                android:textSize="13sp"
+                android:textColor="@android:color/black"
+                android:layout_weight="1"/>
+
+            <RadioButton
+                android:id="@+id/sort_time"
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:layout_marginLeft="4dp"
+                android:background="@drawable/course_sort_button_selector"
+                android:button="@android:color/transparent"
+                android:checked="false"
+                android:gravity="center"
+                android:text="소요시간"
+                android:textSize="13sp"
+                android:textColor="@android:color/black"
+                android:layout_weight="1"/>
+        </RadioGroup>
+
+        <!--  post xml  -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/search_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:paddingHorizontal="16dp" />
+    </LinearLayout>
+</LinearLayout>

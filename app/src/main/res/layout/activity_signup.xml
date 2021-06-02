@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.SignupActivity">
+
+    <TextView
+        android:id="@+id/signup_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="110dp"
+        android:text="SIGN UP"
+        android:textAlignment="center"
+        android:textColor="@color/colorPrimary"
+        android:textSize="48sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/signup_id"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:ems="10"
+        android:hint="아이디"
+        android:inputType="textPersonName"
+        android:text="android000"
+        app:layout_constraintEnd_toEndOf="@+id/signup_title"
+        app:layout_constraintStart_toStartOf="@+id/signup_title"
+        app:layout_constraintTop_toBottomOf="@+id/signup_title" />
+
+    <TextView
+        android:id="@+id/signup_id_msg"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginTop="4dp"
+        android:text="* notice"
+        android:textColor="@android:color/holo_red_dark"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="@+id/signup_id"
+        app:layout_constraintStart_toStartOf="@+id/signup_id"
+        app:layout_constraintTop_toBottomOf="@+id/signup_id" />
+
+    <EditText
+        android:id="@+id/signup_password"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:ems="10"
+        android:hint="비밀번호"
+        android:inputType="textPassword"
+        android:text="android0001!"
+        app:layout_constraintEnd_toEndOf="@+id/signup_id_msg"
+        app:layout_constraintStart_toStartOf="@+id/signup_id_msg"
+        app:layout_constraintTop_toBottomOf="@+id/signup_id_msg" />
+
+    <TextView
+        android:id="@+id/signup_pwd_msg"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginTop="4dp"
+        android:text="* notice"
+        android:textColor="@android:color/holo_red_dark"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="@+id/signup_password"
+        app:layout_constraintStart_toStartOf="@+id/signup_password"
+        app:layout_constraintTop_toBottomOf="@+id/signup_password" />
+
+    <EditText
+        android:id="@+id/signup_pwd_confirmation"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:ems="10"
+        android:hint="비밀번호 확인"
+        android:inputType="textPassword"
+        android:text="android0001!"
+        app:layout_constraintEnd_toEndOf="@+id/signup_pwd_msg"
+        app:layout_constraintStart_toStartOf="@+id/signup_pwd_msg"
+        app:layout_constraintTop_toBottomOf="@+id/signup_pwd_msg" />
+
+    <TextView
+        android:id="@+id/signup_pwd_confirmation_msg"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginTop="4dp"
+        android:text="* notice"
+        android:textColor="@android:color/holo_red_dark"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="@+id/signup_pwd_confirmation"
+        app:layout_constraintStart_toStartOf="@+id/signup_pwd_confirmation"
+        app:layout_constraintTop_toBottomOf="@+id/signup_pwd_confirmation" />
+
+    <EditText
+        android:id="@+id/signup_nickname"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:ems="10"
+        android:hint="닉네임"
+        android:inputType="textPersonName"
+        android:text="안드로이드"
+        app:layout_constraintEnd_toEndOf="@+id/signup_pwd_confirmation_msg"
+        app:layout_constraintStart_toStartOf="@+id/signup_pwd_confirmation_msg"
+        app:layout_constraintTop_toBottomOf="@+id/signup_pwd_confirmation_msg" />
+
+    <TextView
+        android:id="@+id/signup_nickname_msg"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginTop="4dp"
+        android:text="* notice"
+        android:textColor="@android:color/holo_red_dark"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="@+id/signup_nickname"
+        app:layout_constraintStart_toStartOf="@+id/signup_nickname"
+        app:layout_constraintTop_toBottomOf="@+id/signup_nickname" />
+
+    <Button
+        android:id="@+id/signup_btn"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="@color/colorPrimary"
+        android:text="Sign up"
+        android:textColor="@android:color/white"
+        app:layout_constraintEnd_toEndOf="@+id/signup_nickname_msg"
+        app:layout_constraintStart_toStartOf="@+id/signup_nickname_msg"
+        app:layout_constraintTop_toBottomOf="@+id/signup_nickname_msg" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

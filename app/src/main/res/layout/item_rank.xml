@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="8dp"
+    android:paddingBottom="7dp"
+    android:paddingRight="16dp"
+    android:id="@+id/rank_item_id">
+
+    <TextView
+        android:id="@+id/rank_number"
+        android:layout_width="45dp"
+        android:layout_height="56dp"
+        android:layout_marginRight="8dp"
+        android:text="0"
+        android:gravity="center"
+        android:textSize="25sp"
+        android:textColor="#C6C6C6"/>
+
+    <ImageView
+        android:id="@+id/rank_img"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:src="@mipmap/ic_launcher"
+        android:scaleType="fitXY"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginLeft="16dp"
+        android:layout_gravity="center">
+
+        <TextView
+            android:id="@+id/rank_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rank Name"
+            android:textSize="18sp"
+            android:textColor="#C6C6C6"/>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/rank_score"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Riding Score"
+            android:textSize="20sp"
+            android:textColor="#C6C6C6"/>
+    </LinearLayout>
+
+</LinearLayout>
