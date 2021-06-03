@@ -14,7 +14,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:text="0000-00-00"
-        android:textSize="14sp"
+        android:textSize="10sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -25,7 +25,7 @@
         android:layout_marginTop="4dp"
         android:text="Course Name"
         android:textColor="@android:color/black"
-        android:textSize="32dp"
+        android:textSize="24dp"
         app:layout_constraintStart_toStartOf="@+id/created_date_course_detail"
         app:layout_constraintTop_toBottomOf="@+id/created_date_course_detail" />
 
@@ -36,7 +36,7 @@
         android:layout_marginTop="2dp"
         android:text="Start Point"
         android:textColor="@android:color/black"
-        android:textSize="16sp"
+        android:textSize="14sp"
         app:layout_constraintStart_toStartOf="@+id/course_name_course_detail"
         app:layout_constraintTop_toBottomOf="@+id/course_name_course_detail" />
 
@@ -60,7 +60,7 @@
         android:layout_marginTop="2dp"
         android:text="End Point"
         android:textColor="@android:color/black"
-        android:textSize="16sp"
+        android:textSize="14sp"
         app:layout_constraintStart_toEndOf="@+id/wave"
         app:layout_constraintTop_toBottomOf="@+id/course_name_course_detail" />
 
@@ -72,7 +72,7 @@
         android:layout_marginTop="16dp"
         android:text="거리"
         android:textColor="@android:color/black"
-        android:textSize="16sp"
+        android:textSize="14sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/start_point_course_detail" />
 
@@ -80,11 +80,11 @@
         android:id="@+id/distance_course_detail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="100dp"
+        android:layout_marginStart="80dp"
         android:layout_marginTop="16dp"
         android:text="00.0 km"
         android:textColor="@android:color/black"
-        android:textSize="16sp"
+        android:textSize="14sp"
         app:layout_constraintStart_toEndOf="@+id/distance_title_course_detail"
         app:layout_constraintTop_toBottomOf="@+id/end_point_course_detail" />
 
@@ -96,7 +96,7 @@
         android:layout_marginTop="4dp"
         android:text="예상 소요 시간"
         android:textColor="@android:color/black"
-        android:textSize="16sp"
+        android:textSize="14sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/distance_title_course_detail" />
 
@@ -107,10 +107,9 @@
         android:layout_marginTop="4dp"
         android:text="0시간 00분"
         android:textColor="@android:color/black"
-        android:textSize="16sp"
+        android:textSize="14sp"
         app:layout_constraintStart_toStartOf="@+id/distance_course_detail"
         app:layout_constraintTop_toBottomOf="@+id/distance_course_detail" />
-
 
     <fragment
         android:id="@+id/map_course_detail"
@@ -139,8 +138,8 @@
 
         <ToggleButton
             android:id="@+id/like_button_course_detail"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:background="@drawable/like_button_selector"
             android:textOff=""
             android:textOn=""/>
@@ -151,7 +150,8 @@
             android:layout_height="wrap_content"
             android:text="00,000"
             android:textAlignment="center"
-            android:layout_marginLeft="4dp"/>
+            android:layout_marginLeft="4dp"
+            android:textSize="14dp"/>
     </LinearLayout>
 
     <Button

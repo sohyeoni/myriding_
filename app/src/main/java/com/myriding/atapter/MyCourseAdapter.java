@@ -46,7 +46,7 @@ public class MyCourseAdapter extends RecyclerView.Adapter<MyCourseAdapter.MyView
             @Override
             public void onClick(View view) {
                 int postId = mData.get(vHolder.getAdapterPosition()).getId();
-                Toast.makeText(mContext, "Click Popular " + postId, Toast.LENGTH_SHORT).show();
+//                Toast.makeText(mContext, "Click Popular " + postId, Toast.LENGTH_SHORT).show();
 
                 Intent intent = new Intent(view.getContext(), CourseViewDetailActivity.class);
                 intent.addFlags(intent.FLAG_ACTIVITY_NEW_TASK);
@@ -69,7 +69,6 @@ public class MyCourseAdapter extends RecyclerView.Adapter<MyCourseAdapter.MyView
         holder.tv_distance.setText(mData.get(position).getDistance() + "km");
         holder.tv_time.setText(mData.get(position).getTime() + "분");
         holder.tv_like.setText(likeFormat.format(mData.get(position).getLike()));
-//        holder.img.setImageResource(mData.get(position).getImg());
 
         String imgString = mData.get(position).getImg().substring(22);
         byte[] imageBytes = Base64.decode(imgString, Base64.DEFAULT);

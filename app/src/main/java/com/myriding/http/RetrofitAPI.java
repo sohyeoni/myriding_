@@ -1,7 +1,9 @@
 package com.myriding.http;
 
+import com.myriding.model.CourseDetailResponse;
 import com.myriding.model.CourseResponse;
 import com.myriding.model.Login;
+import com.myriding.model.ProfileResponse;
 import com.myriding.model.RankProfileResponse;
 import com.myriding.model.Register;
 import com.myriding.model.LoginResponse;
@@ -12,8 +14,11 @@ import org.json.JSONObject;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
+import retrofit2.http.HTTP;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
@@ -25,6 +30,11 @@ public interface RetrofitAPI {
 
     @POST("auth/login")
     Call<LoginResponse> login(@Body Login login);
+
+    @GET("auth/profilemobile")
+    Call<ProfileResponse> getProfile(
+            @Header("Authorization") String authToke
+    );
 
     @GET("rank")
     Call<RankResponse> getRank(@Header("Authorization") String authToken);
@@ -44,6 +54,12 @@ public interface RetrofitAPI {
     @GET("route/mylistall")
     Call<CourseResponse> getMyCourseAll(@Header("Authorization") String authToken);
 
+    @GET("route/mylist/{post_id}")
+    Call<CourseDetailResponse> getDetailCourse(
+            @Header("Authorization") String authToke,
+            @Path("post_id") int id
+    );
+
     @GET("route/search")
     Call<CourseResponse> getSearchCourse(
             @Header("Authorization") String authToken,
@@ -51,17 +67,17 @@ public interface RetrofitAPI {
             @Query("count") int sortValue
     );
 
-    @GET("route/{post_id}")
-    Call<CourseResponse> getDetailCourse(
-            @Header("Authorization") String authToke,
-            @Path("post_id") int id
-    );
-
+    @FormUrlEncoded
     @POST("routelike/likeup")
-    Call<JSONObject> updateLikeCount(
+    Call<JSONObject> updateLike(
             @Header("Authorization") String authToken,
             @Field("route_like_obj") int route_id
     );
 
-
+    @FormUrlEncoded
+    @HTTP(method = "DELETE", path = "routelike/likedown", hasBody = true)
+    Call<JSONObject> deleteLike(
+            @Header("Authorization") String authToken,
+            @Field("route_like_obj") int route_id
+    );
 }
