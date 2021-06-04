@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -46,8 +47,8 @@ public class BottomNavigationActivity extends AppCompatActivity {
                         setFrag("Course");
                         break;
                     case R.id.riding:
-                        // Intent intent = new Intent(getApplicationContext(), RidingMain2.class);
-                        // startActivity(intent);
+                        Intent intent = new Intent(getApplicationContext(), RidingActivity.class);
+                        startActivity(intent);
                         break;
                     case R.id.rank:
                         setFrag("Rank");

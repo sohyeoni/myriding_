@@ -7,6 +7,8 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
     <application
         android:allowBackup="true"
@@ -16,10 +18,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
+        <activity android:name=".activity.RidingActivity"></activity>
 
         <uses-library
             android:name="org.apache.http.legacy"
-            android:required="false"/>
+            android:required="false" />
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAyzt21TX_jywbakOE_1yqM1yqPjgD5MbY" />
@@ -27,7 +31,7 @@
         <activity android:name=".activity.CourseViewDetailActivity" />
         <activity android:name=".activity.MyCourseMoreActivity" />
         <activity android:name=".activity.SearchActivity" />
-        <activity android:name=".activity.BottomNavigationActivity"></activity>
+        <activity android:name=".activity.BottomNavigationActivity" />
         <activity android:name=".activity.SignupActivity" />
         <activity android:name=".activity.LoginActivity">
             <intent-filter>

@@ -70,7 +70,6 @@ public class CourseViewDetailActivity extends AppCompatActivity implements OnMap
         Intent intent = getIntent();
         int courseID = intent.getExtras().getInt("post_id");
 
-        // todo 해당 경로의 데이터 획득
         getDetailCourse(courseID);
 
         btn_ridingStart = (Button) findViewById(R.id.start_button_course_detail);
@@ -88,10 +87,8 @@ public class CourseViewDetailActivity extends AppCompatActivity implements OnMap
             public void onClick(View view) {
                 if(btn_like.isChecked()) {
                     updateLike(courseID);
-                    Log.d(TAG, "enabled");
                 } else {
                     deleteLike(courseID);
-                    Log.d(TAG, "disabled");
                 }
             }
         });
@@ -119,6 +116,7 @@ public class CourseViewDetailActivity extends AppCompatActivity implements OnMap
                     List<RouteValue> courseDetail = response.body().getRoutes().getRouteValue();
                     List<RouteMongoValue> routeValues = response.body().getRoutes().getRouteMongoValue();
 
+                    //  TODO 초기 좋아요 상태 설정
                     if(courseDetail != null)    setCourseInfo(courseDetail);
                     if(routeValues != null)     setRoutes(routeValues);
                 } else {

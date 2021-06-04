@@ -10,6 +10,7 @@ import com.myriding.model.LoginResponse;
 import com.myriding.model.RankResponse;
 import com.myriding.model.RegisterResponse;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import retrofit2.Call;
@@ -79,5 +80,19 @@ public interface RetrofitAPI {
     Call<JSONObject> deleteLike(
             @Header("Authorization") String authToken,
             @Field("route_like_obj") int route_id
+    );
+
+    @FormUrlEncoded
+    @POST("record")
+    Call<JSONObject> setMyRecord(
+            @Header("Authorization") String authToken,
+            @Field("rec_title") String rec_title,
+            @Field("rec_distance") double rec_distance,
+            @Field("rec_time") int rec_time,
+            @Field("rec_start_point_address") String rec_start_point_address,
+            @Field("rec_end_point_address") String rec_end_point_address,
+            @Field("rec_avg_speed") double rec_avg_speed,
+            @Field("rec_max_speed") double rec_max_speed,
+            @Field("records") JSONArray record
     );
 }

@@ -5,7 +5,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -20,6 +24,7 @@ import com.myriding.model.ErrorResponse;
 import com.myriding.model.Register;
 import com.myriding.model.RegisterResponse;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -136,6 +141,17 @@ public class SignupActivity extends AppCompatActivity {
                 Log.d("HTTP", "Fail : " + t.getMessage());
             }
         });
+    }
+
+    void imageToString() {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        Resources res = getResources();
+
+        Bitmap bitmap = BitmapFactory.decodeResource(res, R.drawable.img_user);
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+
+        byte[] image = outputStream.toByteArray();
+        String profileImageBase64 = Base64.encodeToString(image, Base64.DEFAULT);
     }
 
     public static boolean isValidPassword(String password) {

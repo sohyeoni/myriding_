@@ -14,6 +14,14 @@ public class Register {
         this.user_nickname = user_nickname;
     }
 
+    public Register(String user_account, String user_password, String user_password_confirmation, String user_nickname, String user_picture) {
+        this.user_account = user_account;
+        this.user_password = user_password;
+        this.user_password_confirmation = user_password_confirmation;
+        this.user_nickname = user_nickname;
+        this.user_picture = user_picture;
+    }
+
     public String getUser_account() {
         return user_account;
     }

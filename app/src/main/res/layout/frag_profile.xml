@@ -37,7 +37,8 @@
                         android:layout_height="125dp"
                         android:layout_gravity="center_horizontal"
                         android:layout_marginTop="32dp"
-                        android:src="@drawable/img_user" />
+                        android:src="@drawable/img_user"
+                        android:scaleType="fitCenter"/>
 
                     <TextView
                         android:id="@+id/profile_name"

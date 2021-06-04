@@ -162,7 +162,7 @@ public class RankRecyclerViewAdapter extends RecyclerView.Adapter<RankRecyclerVi
                     TextView tv_profileRankTime = (TextView) myDialog.findViewById(R.id.profile_rank_time);
                     TextView tv_profileRankAvgSpd = (TextView) myDialog.findViewById(R.id.profile_rank_avgSpd);
                     TextView tv_profileRankMaxSpd = (TextView) myDialog.findViewById(R.id.profile_rank_maxSpd);
-                    ImageView tv_profileRankImg = (ImageView) myDialog.findViewById(R.id.profile_rank_img);
+                    ImageView img_profileRankImg = (ImageView) myDialog.findViewById(R.id.profile_rank_img);
 
                     tv_profileRankName.setText(mData.get(vHolder.getAdapterPosition()).getNickname());
                     tv_profileRankScore.setText(mData.get(vHolder.getAdapterPosition()).getScore() + "");
@@ -176,7 +176,7 @@ public class RankRecyclerViewAdapter extends RecyclerView.Adapter<RankRecyclerVi
                     String imgString = mData.get(vHolder.getAdapterPosition()).getImg().substring(22);
                     byte[] imageBytes = Base64.decode(imgString, Base64.DEFAULT);
                     Bitmap decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
-                    tv_profileRankImg.setImageBitmap(decodedImage);
+                    img_profileRankImg.setImageBitmap(decodedImage);
 
                     myDialog.show();
                 } else {
