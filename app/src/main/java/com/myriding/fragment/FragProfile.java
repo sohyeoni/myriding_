@@ -81,10 +81,17 @@ public class FragProfile extends Fragment {
         rb_Right = (RadioButton) view.findViewById(R.id.rbRight);
         rb_Center = (RadioButton) view.findViewById(R.id.rbCenter);
 
-        img_picture = (ImageView) view.findViewById(R.id.profile_img);
         tv_username = (TextView) view.findViewById(R.id.profile_name);
         tv_score = (TextView) view.findViewById(R.id.profile_score);
         tv_count = (TextView) view.findViewById(R.id.profile_count);
+
+        img_picture = (ImageView) view.findViewById(R.id.profile_img);
+        img_picture.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // TODO 사진을 갤러리에서 가져오거나 찍어서 가져오기
+            }
+        });
 
         radioGroup = (RadioGroup) view.findViewById(R.id.rbGroup);
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -301,10 +308,16 @@ public class FragProfile extends Fragment {
         tv_username.setText(profile.getUserNickname());
         tv_score.setText(profile.getUserScoreOfRiding() + "점");
 
-        String imgString = profile.getUserPicture().substring(22);
-        byte[] imageBytes = Base64.decode(imgString, Base64.DEFAULT);
-        Bitmap decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
-        img_picture.setImageBitmap(decodedImage);
+        Log.d(TAG, profile.getUserPicture());
+
+        try {
+            String imgString = profile.getUserPicture().substring(22);
+            byte[] imageBytes = Base64.decode(imgString, Base64.DEFAULT);
+            Bitmap decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+            img_picture.setImageBitmap(decodedImage);
+        } catch (Exception e) {
+            img_picture.setImageResource(R.drawable.img_user);
+        }
     }
 
     double[][] distances = new double[8][2];
@@ -313,7 +326,7 @@ public class FragProfile extends Fragment {
     int[][] times = new int[8][2];
     private void setGraphDatas(List<Stat> stats) {
         int i = 0;
-        for(Stat stat : stats) {
+        for (Stat stat : stats) {
             Log.d(TAG, stat.getWeek() + "주] 거리: " + stat.getDistance() + ", 평균속도" + stat.getAvgSpeed()
                     + ", 최고속도: " + stat.getMaxSpeed() + ", 시간: " + stat.getTime());
 //            distances[i][0] = stat.getWeek();
