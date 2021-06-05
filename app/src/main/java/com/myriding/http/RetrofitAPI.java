@@ -9,10 +9,16 @@ import com.myriding.model.Register;
 import com.myriding.model.LoginResponse;
 import com.myriding.model.RankResponse;
 import com.myriding.model.RegisterResponse;
+import com.myriding.model.RouteLikeResponse;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Map;
+
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -21,7 +27,10 @@ import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.HTTP;
 import retrofit2.http.Header;
+import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.Part;
+import retrofit2.http.PartMap;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
@@ -70,14 +79,14 @@ public interface RetrofitAPI {
 
     @FormUrlEncoded
     @POST("routelike/likeup")
-    Call<JSONObject> updateLike(
+    Call<RouteLikeResponse> updateLike(
             @Header("Authorization") String authToken,
             @Field("route_like_obj") int route_id
     );
 
     @FormUrlEncoded
     @HTTP(method = "DELETE", path = "routelike/likedown", hasBody = true)
-    Call<JSONObject> deleteLike(
+    Call<RouteLikeResponse> deleteLike(
             @Header("Authorization") String authToken,
             @Field("route_like_obj") int route_id
     );
@@ -94,5 +103,11 @@ public interface RetrofitAPI {
             @Field("rec_avg_speed") double rec_avg_speed,
             @Field("rec_max_speed") double rec_max_speed,
             @Field("records") JSONArray record
+    );
+
+    @Multipart
+    @POST("auth/update/image") Call<JSONObject> uploadProfileImage(
+            @Header("Authorization") String authToken,
+            @Part ArrayList<MultipartBody.Part> files
     );
 }

@@ -80,7 +80,7 @@ public class FragRank extends Fragment {
 
             @Override
             public void onFailure(Call<RankResponse> call, Throwable t) {
-                Toast.makeText(getContext(), "서버 통신 실패", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "데이터 형식 확인할 것", Toast.LENGTH_SHORT).show();
                 Log.d(TAG, t.getMessage());
             }
         });

@@ -25,6 +25,7 @@ import com.myriding.http.RetrofitClient;
 import com.myriding.model.CourseData;
 import com.myriding.model.CourseDetailResponse;
 import com.myriding.model.CourseResponse;
+import com.myriding.model.RouteLikeResponse;
 import com.myriding.model.RouteMongoValue;
 import com.myriding.model.RouteValue;
 import com.myriding.model.Routes;
@@ -116,9 +117,11 @@ public class CourseViewDetailActivity extends AppCompatActivity implements OnMap
                     List<RouteValue> courseDetail = response.body().getRoutes().getRouteValue();
                     List<RouteMongoValue> routeValues = response.body().getRoutes().getRouteMongoValue();
 
-                    //  TODO 초기 좋아요 상태 설정
                     if(courseDetail != null)    setCourseInfo(courseDetail);
                     if(routeValues != null)     setRoutes(routeValues);
+
+                    boolean likeStatus =  response.body().getRoutes().getRouteLikeStatus() == 1 ? true : false;
+                    btn_like.setChecked(likeStatus);
                 } else {
                     Toast.makeText(getApplicationContext(), "경로 상세 정보 조회 실패1", Toast.LENGTH_SHORT).show();
                 }
@@ -165,19 +168,20 @@ public class CourseViewDetailActivity extends AppCompatActivity implements OnMap
     private void updateLike(int id) {
         retrofitAPI = RetrofitClient.getApiService();
 
-        Call<JSONObject> call = retrofitAPI.updateLike(Token.getToken(), id);
-        call.enqueue(new Callback<JSONObject>() {
+        Call<RouteLikeResponse> call = retrofitAPI.updateLike(Token.getToken(), id);
+        call.enqueue(new Callback<RouteLikeResponse>() {
             @Override
-            public void onResponse(Call<JSONObject> call, Response<JSONObject> response) {
+            public void onResponse(Call<RouteLikeResponse> call, Response<RouteLikeResponse> response) {
                 if(response.isSuccessful()) {
                     Toast.makeText(getApplicationContext(), "좋아요", Toast.LENGTH_SHORT).show();
+                    tv_like.setText(response.body().getLikeCount() + "");
                 } else {
                     Toast.makeText(getApplicationContext(), "좋아요 실패1", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
-            public void onFailure(Call<JSONObject> call, Throwable t) {
+            public void onFailure(Call<RouteLikeResponse> call, Throwable t) {
                 Toast.makeText(getApplicationContext(), "좋아요 실패2", Toast.LENGTH_SHORT).show();
             }
         });
@@ -186,19 +190,20 @@ public class CourseViewDetailActivity extends AppCompatActivity implements OnMap
     private void deleteLike(int id) {
         retrofitAPI = RetrofitClient.getApiService();
 
-        Call<JSONObject> call = retrofitAPI.deleteLike(Token.getToken(), id);
-        call.enqueue(new Callback<JSONObject>() {
+        Call<RouteLikeResponse> call = retrofitAPI.deleteLike(Token.getToken(), id);
+        call.enqueue(new Callback<RouteLikeResponse>() {
             @Override
-            public void onResponse(Call<JSONObject> call, Response<JSONObject> response) {
+            public void onResponse(Call<RouteLikeResponse> call, Response<RouteLikeResponse> response) {
                 if(response.isSuccessful()) {
                     Toast.makeText(getApplicationContext(), "좋아요 취소", Toast.LENGTH_SHORT).show();
+                    tv_like.setText(response.body().getLikeCount() + "");
                 } else {
                     Toast.makeText(getApplicationContext(), "좋아요 취소 실패1", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
-            public void onFailure(Call<JSONObject> call, Throwable t) {
+            public void onFailure(Call<RouteLikeResponse> call, Throwable t) {
                 Toast.makeText(getApplicationContext(), "좋아요 취소 실패2", Toast.LENGTH_SHORT).show();
             }
         });

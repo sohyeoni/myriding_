@@ -12,6 +12,9 @@ public class Routes {
     @SerializedName("routeMongoValue")
     @Expose
     private List<RouteMongoValue> routeMongoValue = null;
+    @SerializedName("routeLikeValue")
+    @Expose
+    private Integer routeLikeStatus;
 
     public List<RouteValue> getRouteValue() {
         return routeValue;
@@ -27,5 +30,13 @@ public class Routes {
 
     public void setRouteMongoValue(List<RouteMongoValue> routeMongoValue) {
         this.routeMongoValue = routeMongoValue;
+    }
+
+    public Integer getRouteLikeStatus() {
+        return routeLikeStatus;
+    }
+
+    public void setRouteLikeStatus(Integer routeLikeStatus) {
+        this.routeLikeStatus = routeLikeStatus;
     }
 }
