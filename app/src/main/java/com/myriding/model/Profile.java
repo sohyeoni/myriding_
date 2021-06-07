@@ -18,6 +18,9 @@ public class Profile {
     @SerializedName("user_score_of_riding")
     @Expose
     private int userScoreOfRiding;
+    @SerializedName("user_num_of_riding")
+    @Expose
+    private int userNumOfRiding;
     @SerializedName("stat")
     @Expose
     private List<Stat> stat = null;
@@ -55,6 +58,14 @@ public class Profile {
 
     public void setUserScoreOfRiding(int userScoreOfRiding) {
         this.userScoreOfRiding = userScoreOfRiding;
+    }
+
+    public int getUserNumOfRiding() {
+        return userNumOfRiding;
+    }
+
+    public void setUserNumOfRiding(int userNumOfRiding) {
+        this.userNumOfRiding = userNumOfRiding;
     }
 
     public List<Stat> getStat() {

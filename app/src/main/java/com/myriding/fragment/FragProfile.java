@@ -29,6 +29,8 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.myriding.R;
 import com.myriding.activity.SearchActivity;
 import com.myriding.atapter.ProfileRecyclerViewAdapter;
@@ -307,8 +309,7 @@ public class FragProfile extends Fragment {
     void setUserData(Profile profile) {
         tv_username.setText(profile.getUserNickname());
         tv_score.setText(profile.getUserScoreOfRiding() + "점");
-
-        Log.d(TAG, profile.getUserPicture());
+        tv_count.setText(profile.getUserNumOfRiding() + "회");
 
         try {
             String imgString = profile.getUserPicture().substring(22);

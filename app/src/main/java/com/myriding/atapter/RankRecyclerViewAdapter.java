@@ -82,10 +82,14 @@ public class RankRecyclerViewAdapter extends RecyclerView.Adapter<RankRecyclerVi
         holder.tv_score.setText(scoreFormat.format(mData.get(position).getScore()) + "점");
 //        holder.img.setImageResource(mData.get(position).getImg());
 
-        String imgString = mData.get(position).getImg().substring(22);
-        byte[] imageBytes = Base64.decode(imgString, Base64.DEFAULT);
-        Bitmap decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
-        holder.img.setImageBitmap(decodedImage);
+        try {
+            String imgString = mData.get(position).getImg().substring(22);
+            byte[] imageBytes = Base64.decode(imgString, Base64.DEFAULT);
+            Bitmap decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+            holder.img.setImageBitmap(decodedImage);
+        } catch(Exception e) {
+            holder.img.setImageResource(R.drawable.img_user);
+        }
 
         /* 랭킹 1 ~ 3위 텍스트 색, Bold 설정 */
         switch (mData.get(position).getMyRankNum()) {
@@ -173,10 +177,14 @@ public class RankRecyclerViewAdapter extends RecyclerView.Adapter<RankRecyclerVi
                     tv_profileRankMaxSpd.setText(mData.get(vHolder.getAdapterPosition()).getMaxSpeed() + "");
 
                     /* image decode */
-                    String imgString = mData.get(vHolder.getAdapterPosition()).getImg().substring(22);
-                    byte[] imageBytes = Base64.decode(imgString, Base64.DEFAULT);
-                    Bitmap decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
-                    img_profileRankImg.setImageBitmap(decodedImage);
+                    try {
+                        String imgString = mData.get(vHolder.getAdapterPosition()).getImg().substring(22);
+                        byte[] imageBytes = Base64.decode(imgString, Base64.DEFAULT);
+                        Bitmap decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+                        img_profileRankImg.setImageBitmap(decodedImage);
+                    } catch (Exception e) {
+                        img_profileRankImg.setImageResource(R.drawable.img_user);
+                    }
 
                     myDialog.show();
                 } else {
