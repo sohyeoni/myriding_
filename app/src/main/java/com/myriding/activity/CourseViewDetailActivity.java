@@ -77,8 +77,8 @@ public class CourseViewDetailActivity extends AppCompatActivity implements OnMap
         btn_ridingStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Intent intent = new Intent(getApplicationContext(), RidingMain2.class);
-//                startActivity(intent);
+                Intent intent = new Intent(getApplicationContext(), RidingActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -147,7 +147,7 @@ public class CourseViewDetailActivity extends AppCompatActivity implements OnMap
         }
     }
 
-    PolylineOptions polylineOptions = new PolylineOptions();;
+    PolylineOptions polylineOptions = new PolylineOptions();
     ArrayList<LatLng> arrayPoints = new ArrayList<LatLng>();
     void setRoutes(List<RouteMongoValue> routes) {
         for(RouteMongoValue route : routes) {

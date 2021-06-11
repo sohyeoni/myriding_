@@ -2,6 +2,8 @@ package com.myriding.http;
 
 import com.myriding.model.CourseDetailResponse;
 import com.myriding.model.CourseResponse;
+import com.myriding.model.Home;
+import com.myriding.model.HomeResponse;
 import com.myriding.model.Login;
 import com.myriding.model.ProfileResponse;
 import com.myriding.model.RankProfileResponse;
@@ -103,6 +105,23 @@ public interface RetrofitAPI {
             @Field("rec_avg_speed") double rec_avg_speed,
             @Field("rec_max_speed") double rec_max_speed,
             @Field("records") JSONArray record
+    );
+
+    @GET("record/home")
+    Call<HomeResponse> getOnedayRecord(
+            @Header("Authorization") String authToken,
+            @Query("year") int year,
+            @Query("month") int month,
+            @Query("day") int day
+    );
+
+    @GET("record/home")
+    Call<HomeResponse> getRecordRoute(
+            @Header("Authorization") String authToken,
+            @Query("year") int year,
+            @Query("month") int month,
+            @Query("day") int day,
+            @Query("record_id") int record_id
     );
 
     @Multipart

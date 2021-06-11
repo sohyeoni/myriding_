@@ -713,8 +713,8 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
                 Log.d(TAG + "[RECORD] : ", distanceTemp + ", " + avgSpeedTemp + ", " + maxSpeed);
                 Log.d(TAG + "[RECORD] : ", (myRecordForJson instanceof JSONArray) ? "true" : "false");
 
-                setMyRecord(title, distanceTemp, time, startPointAddress, endPointAddress,
-                        avgSpeedTemp, maxSpeed, myRecordForJson);
+                // TODO : 1분 미만은 저장 안되록
+                setMyRecord(title, distanceTemp, time, startPointAddress, endPointAddress, avgSpeedTemp, maxSpeed, myRecordForJson);
 
 
                 dialogInterface.dismiss();
