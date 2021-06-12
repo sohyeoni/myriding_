@@ -1,5 +1,6 @@
 package com.myriding.fragment;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -29,6 +30,8 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.myriding.R;
+import com.myriding.activity.HomeMapViewDetailActivity;
+import com.myriding.activity.SearchActivity;
 import com.myriding.atapter.HomeRecyclerViewAdapter;
 import com.myriding.http.RetrofitAPI;
 import com.myriding.http.RetrofitClient;
