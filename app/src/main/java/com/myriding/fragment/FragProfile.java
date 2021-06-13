@@ -29,6 +29,7 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.github.mikephil.charting.utils.EntryXComparator;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.myriding.R;
@@ -44,6 +45,7 @@ import com.myriding.model.Profile;
 import com.myriding.model.ProfileResponse;
 import com.myriding.model.Stat;
 import com.myriding.model.Token;
+import com.prolificinteractive.materialcalendarview.CalendarDay;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -51,6 +53,9 @@ import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 
 import retrofit2.Call;
@@ -59,6 +64,11 @@ import retrofit2.Response;
 
 public class FragProfile extends Fragment {
     private String TAG = "FragProfile";
+    private String DISTANCE_CHART_COLOR = "#FFB85A";
+    private String TIME_CHART_COLOR = "#9FC93C";
+    private String AVG_SPEED_CHART_COLOR = "#1266FF";
+    private String MAX_SPEED_CHART_COLOR = "#C98AFF";
+    private int UNCLICKED_BUTTON_COLOR = Color.parseColor("#d3d3d3");
 
     private View view;
 
@@ -68,7 +78,11 @@ public class FragProfile extends Fragment {
     private ImageView img_picture;
     private TextView tv_username, tv_score, tv_count;
 
-    private LineChart lineChart;
+    private LineChart chart;
+    List<Entry> distances = new ArrayList<>();
+    List<Entry> avgSpeeds = new ArrayList<>();
+    List<Entry> maxSpeeds = new ArrayList<>();
+    List<Entry> times = new ArrayList<>();
 
     private TextView tv_badgeMore;
     private RecyclerView myrecyclerview;
@@ -101,26 +115,16 @@ public class FragProfile extends Fragment {
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
                 switch (i) {
                     case R.id.rbLeft:
-                        changeRadioButtonTextColor(Color.WHITE, Color.parseColor("#d3d3d3"), Color.parseColor("#d3d3d3"));
-                        int[][] myData1 = {{0, 10}, {1, 50}, {2, 6}, {3, 18}, {4, 66},
-                                {5, 21}, {6, 28}, {7, 11}, {8, 8}, {9, 35}};
-                        setChart(myData1, "#FFB85A", "거리");
+                        changeRadioButtonTextColor(Color.WHITE, UNCLICKED_BUTTON_COLOR, UNCLICKED_BUTTON_COLOR);
+                        makeSingleChart(distances, "거리", DISTANCE_CHART_COLOR);
                         break;
                     case R.id.rbCenter:
-                        changeRadioButtonTextColor(Color.parseColor("#d3d3d3"), Color.WHITE, Color.parseColor("#d3d3d3"));
-                        int[][] myData2 = {{0, 15}, {1, 33}, {2, 21}, {3, 12}, {4, 22},
-                                {5, 11}, {6, 28}, {7, 33}, {8, 32}, {9, 33}};
-                        int[][] myData3 = {{0, 20}, {1, 43}, {2, 24}, {3, 18}, {4, 38},
-                                {5, 14}, {6, 32}, {7, 38}, {8, 37}, {9, 48}};
-                        setChartMulti(myData2, myData3,"#1266FF", "#C98AFF","평균속도", "최고속도");
+                        changeRadioButtonTextColor(UNCLICKED_BUTTON_COLOR, Color.WHITE, UNCLICKED_BUTTON_COLOR);
+                        makeDoubleChart(avgSpeeds, "평균속도", AVG_SPEED_CHART_COLOR, maxSpeeds, "최고 속도", MAX_SPEED_CHART_COLOR);
                         break;
                     case R.id.rbRight:
-                        changeRadioButtonTextColor(Color.parseColor("#d3d3d3"), Color.parseColor("#d3d3d3"), Color.WHITE);
-                        int[][] myData4 = {
-                                {0, 11}, {1, 48}, {2, 12}, {3, 5}, {4, 35},
-                                {5, 9}, {6, 28}, {7, 33}, {8, 32}, {9, 33}, {10, 50}
-                        };
-                        setChart(times, "#9FC93C", "시간");
+                        changeRadioButtonTextColor(UNCLICKED_BUTTON_COLOR, UNCLICKED_BUTTON_COLOR, Color.WHITE);
+                        makeSingleChart(times, "시간", TIME_CHART_COLOR);
                         break;
                 }
             }
@@ -129,10 +133,16 @@ public class FragProfile extends Fragment {
         getProfile();
 
         // <-- 통계 차트 초기화
-        lineChart = (LineChart) view.findViewById(R.id.chart);
-//        int[][] myData = {{0, 10}, {1, 50}, {2, 6}, {3, 18}, {4, 66},
-//                {5, 21}, {6, 28}, {7, 11}, {8, 8}, {9, 35}};
-//        setChart(myData, "#FFB85A", "거리");
+        chart = (LineChart) view.findViewById(R.id.chart);
+        List<Entry> defaultData = new ArrayList<>();
+
+        int currentWeek = Calendar.getInstance().get(Calendar.WEEK_OF_YEAR);
+        for (int i = 0; i < 12; i++) {
+            currentWeek = currentWeek - 1;
+            defaultData.add(new Entry(currentWeek, 0f));
+        }
+        Collections.sort(defaultData, new EntryXComparator());
+        makeSingleChart(defaultData, "거리", DISTANCE_CHART_COLOR);
         // -->
 
         // <-- 배찌 "more" 클릭 이벤트
@@ -180,95 +190,6 @@ public class FragProfile extends Fragment {
     }
     // -->
 
-    private ArrayList<Entry> lineChartDataSet2(int[][] datas) {
-        ArrayList<Entry> dataSet = new ArrayList<>();
-
-        for(int i = 0; i < datas.length; i++) {
-            dataSet.add(new Entry(datas[i][0], datas[i][1]));
-        }
-
-        return dataSet;
-    }
-
-    private void initChart() {
-        // 차트 설정
-        Description description = new Description();
-        description.setText("");
-
-        lineChart.setDoubleTapToZoomEnabled(false);
-        lineChart.setTouchEnabled(false);
-        lineChart.setDescription(description);
-        lineChart.invalidate();
-
-        // 차트 X, Y축 설정
-        // X축 설정 (레이블 위치, 텍스트 색상, 레이블 표시 개수)
-        XAxis xAxis = lineChart.getXAxis();
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setTextColor(Color.BLACK);
-        xAxis.setLabelCount(8);
-
-        // Y축 왼쪽 레이블 설정
-        YAxis yLAxis = lineChart.getAxisLeft();
-        yLAxis.setTextColor(Color.BLACK);
-        yLAxis.setAxisMinimum(0);
-
-        // Y축 오른쪽 레이블 설정 (비활성화)
-        YAxis yRAxis = lineChart.getAxisRight();
-        yRAxis.setDrawLabels(false);
-        yRAxis.setDrawAxisLine(false);
-        yRAxis.setDrawGridLines(false);
-    }
-
-    private void setChart(int[][] data, String color, String label) {
-        LineDataSet lineDataSet = new LineDataSet(lineChartDataSet2(data), label);
-        lineDataSet.setCircleRadius(5);
-        lineDataSet.setColor(Color.parseColor(color));
-        lineDataSet.setCircleColor(Color.parseColor(color));
-        lineDataSet.setCircleHoleColor(Color.parseColor(color));
-        lineDataSet.setDrawCircles(true);
-        lineDataSet.setDrawCircleHole(true);
-        lineDataSet.setDrawValues(false);
-
-        // 차트에 데이터 입력
-        ArrayList<ILineDataSet> iLineDataSets = new ArrayList<>();
-        iLineDataSets.add(lineDataSet);
-
-        LineData lineData = new LineData(iLineDataSets);
-        lineChart.setData(lineData);
-
-        initChart();
-    }
-
-    private void setChartMulti(int[][] data, int[][] data2, String color, String color2, String label, String label2) {
-        LineDataSet lineDataSet = new LineDataSet(lineChartDataSet2(data), label);
-
-        lineDataSet.setCircleRadius(5);
-        lineDataSet.setColor(Color.parseColor(color));
-        lineDataSet.setCircleColor(Color.parseColor(color));
-        lineDataSet.setCircleHoleColor(Color.parseColor(color));
-        lineDataSet.setDrawCircles(true);
-        lineDataSet.setDrawCircleHole(true);
-        lineDataSet.setDrawValues(false);
-
-        LineDataSet lineDataSet2 = new LineDataSet(lineChartDataSet2(data2), label2);
-        lineDataSet2.setCircleRadius(5);
-        lineDataSet2.setColor(Color.parseColor(color2));
-        lineDataSet2.setCircleColor(Color.parseColor(color2));
-        lineDataSet2.setCircleHoleColor(Color.parseColor(color2));
-        lineDataSet2.setDrawCircles(true);
-        lineDataSet2.setDrawCircleHole(true);
-        lineDataSet2.setDrawValues(false);
-
-        // 차트에 데이터 입력
-        ArrayList<ILineDataSet> iLineDataSets = new ArrayList<>();
-        iLineDataSets.add(lineDataSet);
-        iLineDataSets.add(lineDataSet2);
-
-        LineData lineData = new LineData(iLineDataSets);
-        lineChart.setData(lineData);
-
-        initChart();
-    }
 
     /* 사용자 정보 / 통계 / 배찌 획득 메서드 */
     private RetrofitAPI retrofitAPI;
@@ -285,6 +206,7 @@ public class FragProfile extends Fragment {
                     if(profile != null) {
                         setUserData(profile);
                         setGraphDatas(profile.getStat());
+                        makeSingleChart(distances, "거리", DISTANCE_CHART_COLOR);
                     }
                 } else {
                     try {
@@ -321,26 +243,95 @@ public class FragProfile extends Fragment {
         }
     }
 
-    double[][] distances = new double[8][2];
-    double[][] avgSpeeds = new double[8][2];
-    double[][] maxSpeeds = new double[8][2];
-    int[][] times = new int[8][2];
     private void setGraphDatas(List<Stat> stats) {
-        int i = 0;
         for (Stat stat : stats) {
-            Log.d(TAG, stat.getWeek() + "주] 거리: " + stat.getDistance() + ", 평균속도" + stat.getAvgSpeed()
-                    + ", 최고속도: " + stat.getMaxSpeed() + ", 시간: " + stat.getTime());
-//            distances[i][0] = stat.getWeek();
-//            avgSpeeds[i][0] = stat.getWeek();
-//            maxSpeeds[i][0] = stat.getWeek();
-//            times[i][0] = stat.getWeek();
-//
-//            distances[i][1] = stat.getDistance();
-//            avgSpeeds[i][1] = stat.getAvgSpeed();
-//            maxSpeeds[i][1] = stat.getMaxSpeed();
-//            times[i][1] = stat.getTime();
-//
-//            i++;
+            distances.add(new Entry(stat.getWeek(), (float) stat.getDistance()));
+            avgSpeeds.add(new Entry(stat.getWeek(), (float) stat.getAvgSpeed()));
+            maxSpeeds.add(new Entry(stat.getWeek(), (float) stat.getMaxSpeed()));
+            times.add(new Entry(stat.getWeek(), (int) (stat.getTime() / 60)));
         }
+
+        Collections.sort(distances, new EntryXComparator());
+        Collections.sort(avgSpeeds, new EntryXComparator());
+        Collections.sort(maxSpeeds, new EntryXComparator());
+        Collections.sort(times, new EntryXComparator());
+    }
+
+    private void initializeChart() {
+        Description description = new Description();
+        description.setText("");
+
+        chart.setDoubleTapToZoomEnabled(false);
+        chart.setTouchEnabled(false);
+        chart.setDrawGridBackground(false);
+        chart.setDescription(description);
+        chart.animateY(800);
+
+        // x, y축 값과 그래프 축 사이 간격
+        chart.getXAxis().setYOffset(10f);
+        chart.getAxisLeft().setXOffset(10f);
+
+        chart.invalidate();
+
+        // 차트 X, Y축 설정
+        // X축 설정 (레이블 위치, 텍스트 색상, 레이블 표시 개수)
+        XAxis xAxis = chart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setTextColor(Color.GRAY);
+        xAxis.setDrawAxisLine(false);
+        xAxis.setDrawGridLines(false);
+        xAxis.setLabelCount(11);
+        xAxis.setSpaceMax(0.5f);
+        xAxis.setSpaceMin(0.5f);
+
+        // Y축 왼쪽 레이블 설정
+        YAxis yLAxis = chart.getAxisLeft();
+        yLAxis.setTextColor(Color.GRAY);
+        yLAxis.setAxisMinimum(0);
+        yLAxis.enableGridDashedLine(10, 10, 10);
+        yLAxis.setDrawZeroLine(true);
+        yLAxis.setZeroLineColor(Color.BLACK);
+
+        // Y축 오른쪽 레이블 설정 (비활성화)
+        YAxis yRAxis = chart.getAxisRight();
+        yRAxis.setDrawLabels(false);
+        yRAxis.setDrawAxisLine(false);
+        yRAxis.setDrawGridLines(false);
+    }
+
+    private LineDataSet initializeLineDataSet(List<Entry> entries, String label, String chartColor) {
+        initializeChart();
+
+        LineDataSet lineDataSet = new LineDataSet(entries, label);
+
+        lineDataSet.setLineWidth(2);
+        lineDataSet.setColor(Color.parseColor(chartColor));
+
+        lineDataSet.setCircleRadius(6);
+        lineDataSet.setCircleHoleRadius(4);
+        lineDataSet.setCircleColor(Color.parseColor(chartColor));
+        lineDataSet.setCircleHoleColor(Color.WHITE);
+
+        lineDataSet.setDrawCircles(true);
+        lineDataSet.setDrawCircleHole(true);
+        lineDataSet.setDrawValues(false);
+
+        return lineDataSet;
+    }
+
+    private void makeSingleChart(List<Entry> entries, String label, String chartColor) {
+        LineDataSet lineDataSet = initializeLineDataSet(entries, label, chartColor);
+
+        LineData data = new LineData(lineDataSet);
+        chart.setData(data);
+    }
+
+
+    private void makeDoubleChart(List<Entry> entries1, String label1, String chartColor1, List<Entry> entries2, String label2, String chartColor2) {
+        LineDataSet lineDataSet1 = initializeLineDataSet(entries1, label1, chartColor1);
+        LineDataSet lineDataSet2 = initializeLineDataSet(entries2, label2, chartColor2);
+
+        LineData data = new LineData(lineDataSet1, lineDataSet2);
+        chart.setData(data);
     }
 }
