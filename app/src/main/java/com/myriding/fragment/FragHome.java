@@ -35,6 +35,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.myriding.R;
 import com.myriding.activity.HomeMapViewDetailActivity;
+import com.myriding.activity.MyCourseMoreActivity;
 import com.myriding.activity.SearchActivity;
 import com.myriding.atapter.HomeRecyclerViewAdapter;
 import com.myriding.atapter.RankRecyclerViewAdapter;
@@ -86,6 +87,7 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
     private MapView mapView;
     private TextView btn_next;
     private TextView btn_prev;
+    private View view_touch;
 
     GoogleMap mMap;
 
@@ -113,6 +115,16 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
         tv_time = (TextView) view.findViewById(R.id.post_time);
         tv_avgSpeed = (TextView) view.findViewById(R.id.post_speed_avg);
         tv_maxSpeed = (TextView) view.findViewById(R.id.post_speed_max);
+        view_touch = (View) view.findViewById(R.id.home_view);
+        view_touch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), HomeMapViewDetailActivity.class);
+                intent.putExtra("post_id", todayPostID[currentPost]);
+                startActivity(intent);
+            }
+        });
+
         btn_next = (TextView) view.findViewById(R.id.btn_next);
         btn_next.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -189,6 +201,7 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
         mMap = googleMap;
         mMap.getUiSettings().setZoomControlsEnabled(false);
         mMap.getUiSettings().setAllGesturesEnabled(false);
+
     }
 
     private void initCalendar(final View view, final @Nullable Bundle savedInstanceState) {
@@ -215,7 +228,6 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
                 selectYear = date.getYear();
                 selectMonth = date.getMonth() + 1;
                 selectDay = date.getDay();
-                layout_record.setVisibility(View.INVISIBLE);
                 getOnedayRecord(selectYear, selectMonth, selectDay);
             }
         });
@@ -261,7 +273,13 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
 
                     HomeValue homeValue = response.body().getHomeValue();
 
+                    if(homeValue == null) {
+                        Log.d(TAG, "라이딩 데이터 없음");
+                        layout_record.setVisibility(View.INVISIBLE);
+                    }
+
                     if(homeValue != null) {
+                        Log.d(TAG, "라이딩 데이터 있음");
                         if (homeValue.getMysqlValue() != null) {
                             List<MysqlValue> mySqlValues = homeValue.getMysqlValue();
                             setPostData(mySqlValues);
@@ -279,11 +297,10 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
                         }
 
                         setPost();
-                    } else {
-                        Log.d(TAG, "IN");
                     }
                 } else {
                     Log.d(TAG, "라이딩 일지 조회 실패");
+                    layout_record.setVisibility(View.INVISIBLE);
                 }
             }
 
@@ -304,9 +321,16 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
             public void onResponse(Call<HomeResponse> call, Response<HomeResponse> response) {
                 if(response.isSuccessful()) {
                     Log.d(TAG, "라이딩 일지 조회 성공");
-
                     HomeValue homeValue = response.body().getHomeValue();
+
+                    if(homeValue == null) {
+                        Log.d(TAG, "라이딩 데이터 없음");
+                        layout_record.setVisibility(View.INVISIBLE);
+                    }
+
                     if(homeValue != null) {
+                        Log.d(TAG, "라이딩 데이터 있음");
+
                         if (homeValue.getMongoValue() != null) {
                             List<MongoValue> mongoValues = homeValue.getMongoValue();
                             setRouteData(mongoValues);
@@ -314,8 +338,14 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
 
                         setPost();
                     }
+
+                    if(homeValue == null) {
+                        Log.d(TAG, "라이딩 데이터 없음");
+                        layout_record.setVisibility(View.INVISIBLE);
+                    }
                 } else {
                     Log.d(TAG, "라이딩 일지 조회 실패");
+                    layout_record.setVisibility(View.INVISIBLE);
                 }
             }
 

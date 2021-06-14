@@ -3,6 +3,7 @@ package com.myriding.http;
 import com.myriding.model.CourseDetailResponse;
 import com.myriding.model.CourseResponse;
 import com.myriding.model.Home;
+import com.myriding.model.HomeDetailResponse;
 import com.myriding.model.HomeResponse;
 import com.myriding.model.Login;
 import com.myriding.model.ProfileResponse;
@@ -122,6 +123,12 @@ public interface RetrofitAPI {
             @Query("month") int month,
             @Query("day") int day,
             @Query("record_id") int record_id
+    );
+
+    @GET("record/detail/{post_id}")
+    Call<HomeDetailResponse> getDetailRoute(
+            @Header("Authorization") String authToken,
+            @Path("post_id") int post_id
     );
 
     @Multipart

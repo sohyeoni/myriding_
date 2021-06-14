@@ -106,6 +106,7 @@ public class FragProfile extends Fragment {
             @Override
             public void onClick(View view) {
                 // TODO 사진을 갤러리에서 가져오거나 찍어서 가져오기
+
             }
         });
 
