@@ -134,6 +134,8 @@ public interface RetrofitAPI {
     @Multipart
     @POST("auth/update/image") Call<JSONObject> uploadProfileImage(
             @Header("Authorization") String authToken,
-            @Part ArrayList<MultipartBody.Part> files
+            @Part MultipartBody.Part image
     );
+
+
 }

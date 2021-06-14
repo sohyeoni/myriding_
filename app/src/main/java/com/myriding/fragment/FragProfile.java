@@ -1,10 +1,21 @@
 package com.myriding.fragment;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.OvalShape;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,9 +25,12 @@ import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -40,6 +54,10 @@ import com.myriding.http.RetrofitAPI;
 import com.myriding.http.RetrofitClient;
 import com.myriding.model.CourseData;
 import com.myriding.model.CourseResponse;
+import com.myriding.model.HomeResponse;
+import com.myriding.model.HomeValue;
+import com.myriding.model.MongoValue;
+import com.myriding.model.MysqlValue;
 import com.myriding.model.PopularCourse;
 import com.myriding.model.Profile;
 import com.myriding.model.ProfileResponse;
@@ -51,24 +69,31 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.w3c.dom.Text;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class FragProfile extends Fragment {
-    private String TAG = "FragProfile";
-    private String DISTANCE_CHART_COLOR = "#FFB85A";
-    private String TIME_CHART_COLOR = "#9FC93C";
-    private String AVG_SPEED_CHART_COLOR = "#1266FF";
-    private String MAX_SPEED_CHART_COLOR = "#C98AFF";
-    private int UNCLICKED_BUTTON_COLOR = Color.parseColor("#d3d3d3");
+    private static String TAG = "FragProfile";
+    private static String DISTANCE_CHART_COLOR = "#FFB85A";
+    private static String TIME_CHART_COLOR = "#9FC93C";
+    private static String AVG_SPEED_CHART_COLOR = "#1266FF";
+    private static String MAX_SPEED_CHART_COLOR = "#C98AFF";
+    private static int UNCLICKED_BUTTON_COLOR = Color.parseColor("#d3d3d3");
+    private static final int PICK_FROM_ALBUM = 1;
 
     private View view;
 
@@ -102,11 +127,16 @@ public class FragProfile extends Fragment {
         tv_count = (TextView) view.findViewById(R.id.profile_count);
 
         img_picture = (ImageView) view.findViewById(R.id.profile_img);
+        // img_picture.setBackground(new ShapeDrawable(new OvalShape()));
+        // img_picture.setClipToOutline(true);
         img_picture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO 사진을 갤러리에서 가져오거나 찍어서 가져오기
-
+                // TODO 사진을 갤러리에서 가져오기
+                checkSelfPermission();
+                Intent intent = new Intent(Intent.ACTION_PICK);
+                intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
+                startActivityForResult(intent, PICK_FROM_ALBUM);
             }
         });
 
@@ -190,7 +220,6 @@ public class FragProfile extends Fragment {
         rb_Right.setTextColor(right);
     }
     // -->
-
 
     /* 사용자 정보 / 통계 / 배찌 획득 메서드 */
     private RetrofitAPI retrofitAPI;
@@ -327,12 +356,120 @@ public class FragProfile extends Fragment {
         chart.setData(data);
     }
 
-
     private void makeDoubleChart(List<Entry> entries1, String label1, String chartColor1, List<Entry> entries2, String label2, String chartColor2) {
         LineDataSet lineDataSet1 = initializeLineDataSet(entries1, label1, chartColor1);
         LineDataSet lineDataSet2 = initializeLineDataSet(entries2, label2, chartColor2);
 
         LineData data = new LineData(lineDataSet1, lineDataSet2);
         chart.setData(data);
+    }
+
+    //권한에 대한 응답이 있을때 작동하는 함수
+    @SuppressLint("MissingSuperCall")
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        //권한을 허용 했을 경우
+        if (requestCode == 1) {
+            int length = permissions.length;
+            for (int i = 0; i < length; i++) {
+                if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                    // 동의
+                    Log.d("MainActivity", "권한 허용 : " + permissions[i]);
+                }
+            }
+        }
+    }
+
+    public void checkSelfPermission() {
+        String temp = "";
+        //파일 읽기 권한 확인
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            temp += Manifest.permission.READ_EXTERNAL_STORAGE + " ";
+        }
+
+        //파일 쓰기 권한 확인
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            temp += Manifest.permission.WRITE_EXTERNAL_STORAGE + " ";
+        }
+
+        if (TextUtils.isEmpty(temp) == false) {
+            // 권한 요청
+            ActivityCompat.requestPermissions(getActivity(), temp.trim().split(" "),1);
+        }else {
+            // 모두 허용 상태
+            Toast.makeText(getContext(), "권한을 모두 허용", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+    Bitmap bm;
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
+            try {
+                InputStream is = getActivity().getContentResolver().openInputStream(data.getData());
+                RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), getBytes(is));
+                MultipartBody.Part body = MultipartBody.Part.createFormData("user_picture", "image.jpg", requestFile);
+
+                bm = BitmapFactory.decodeStream(is);
+                is.close();
+
+                /*Bitmap bm = BitmapFactory.decodeStream(is);
+                is.close();
+                imageView.setImageBitmap(bm);*/
+
+                /*Uri uri = data.getData();
+                String imagePath = getFullPathFromUri(getContext(), uri);
+
+                File imageFile = new File(imagePath);
+                RequestBody body = RequestBody.create(imageFile, MediaType.parse("image/*"));
+                MultipartBody.Part part = MultipartBody.Part.createFormData("image", imageFile.getName(), body);*/
+
+                updateProfileImage(body);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if (requestCode == 1 && resultCode == Activity.RESULT_CANCELED) {
+            Toast.makeText(getContext(), "취소", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public byte[] getBytes(InputStream is) throws IOException {
+        ByteArrayOutputStream byteBuff = new ByteArrayOutputStream();
+
+        int buffSize = 1024;
+        byte[] buff = new byte[buffSize];
+
+        int len = 0;
+        while ((len = is.read(buff)) != -1) {
+            byteBuff.write(buff, 0, len);
+        }
+
+        return byteBuff.toByteArray();
+    }
+
+    private void updateProfileImage(MultipartBody.Part imageFile) {
+        retrofitAPI = RetrofitClient.getApiService();
+
+        Call<JSONObject> call = retrofitAPI.uploadProfileImage(Token.getToken(), imageFile);
+        call.enqueue(new Callback<JSONObject>() {
+            @Override
+            public void onResponse(Call<JSONObject> call, Response<JSONObject> response) {
+                if(response.isSuccessful()) {
+                    Log.d(TAG, "저장 성공");
+                    img_picture.setImageBitmap(bm);
+                } else {
+                    Log.d(TAG, "저장 실패");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JSONObject> call, Throwable t) {
+                Log.d(TAG, "저장 실패2");
+                Log.d(TAG, t.getMessage());
+            }
+        });
     }
 }
