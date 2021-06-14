@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -43,6 +44,10 @@ public class HomeRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
     public HomeRecyclerViewAdapter(Context context, List<Home> data) {
         this.mData = data;
         this.mContext = context;
+    }
+
+    public HomeRecyclerViewAdapter(List<Home> data) {
+        this.mData = data;
     }
 
     @NonNull
@@ -85,7 +90,7 @@ public class HomeRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
         holder.setItem(item);
     }
 
-    GoogleMap mMap;
+    // GoogleMap mMap;
     private class ItemViewHolder extends RecyclerView.ViewHolder {
         private TextView tv_title;
         private TextView tv_startPoint;
@@ -94,7 +99,8 @@ public class HomeRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
         private TextView tv_time;
         private TextView tv_avgSpeed;
         private TextView tv_maxSpeed;
-        private MapView mapView;
+        private ImageView img_map;
+        // private MapView mapView;
 
 
         public ItemViewHolder(@NonNull View itemView) {
@@ -107,7 +113,8 @@ public class HomeRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
             tv_time = (TextView) itemView.findViewById(R.id.post_time);
             tv_avgSpeed = (TextView) itemView.findViewById(R.id.post_speed_avg);
             tv_maxSpeed = (TextView) itemView.findViewById(R.id.post_speed_max);
-            mapView = (MapView) itemView.findViewById(R.id.home_map);
+            img_map = (ImageView) itemView.findViewById(R.id.post_map_image);
+            /*mapView = (MapView) itemView.findViewById(R.id.home_map);
 
             mapView.onCreate(null);
             mapView.getMapAsync(new OnMapReadyCallback() {
@@ -118,9 +125,8 @@ public class HomeRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
                     // LatLng seoul = new LatLng(37.52487, 126.92723);
                     // mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(seoul, 16));
                 }
-            });
+            });*/
         }
-
 
         public void setItem(Home data) {
             tv_title.setText(data.getTitle());
@@ -130,8 +136,9 @@ public class HomeRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
             tv_time.setText(data.getTime() + "");
             tv_avgSpeed.setText(dataFormat.format(data.getAvgSpeed()) + "km/h");
             tv_maxSpeed.setText(dataFormat.format(data.getMaxSpeed()) + "km/h");
-
-            if(mMap != null) {
+            img_map.setImageResource(R.drawable.img_user);
+            // img_map.setImageBitmap();
+            /*if(mMap != null) {
                 Log.d(TAG, "IN");
                 PolylineOptions polylineOptions = new PolylineOptions();
                 polylineOptions.color(Color.RED);
@@ -142,7 +149,7 @@ public class HomeRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
                 LatLng latLng = new LatLng(data.getArrayPoints().get(center).latitude, data.getArrayPoints().get(center).longitude);
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12));
                 mMap.addPolyline(polylineOptions);
-            }
+            }*/
         }
     }
 

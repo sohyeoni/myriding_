@@ -137,14 +137,23 @@
         app:layout_constraintStart_toStartOf="@+id/post_speed_max_title"
         app:layout_constraintTop_toBottomOf="@+id/post_speed_max_title" />
 
-    <com.google.android.gms.maps.MapView
-        android:id="@+id/home_map"
+    <ImageView
+        android:id="@+id/post_map_image"
         android:layout_width="match_parent"
         android:layout_height="300dp"
         android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/post_speed_avg" />
+
+    <!--<com.google.android.gms.maps.MapView
+        android:id="@+id/home_map"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/post_speed_avg" />-->
 
     <!--<fragment
         android:id="@+id/home_map"

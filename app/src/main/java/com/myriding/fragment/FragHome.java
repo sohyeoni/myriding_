@@ -1,9 +1,11 @@
 package com.myriding.fragment;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
@@ -13,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,6 +29,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -33,6 +37,7 @@ import com.myriding.R;
 import com.myriding.activity.HomeMapViewDetailActivity;
 import com.myriding.activity.SearchActivity;
 import com.myriding.atapter.HomeRecyclerViewAdapter;
+import com.myriding.atapter.RankRecyclerViewAdapter;
 import com.myriding.http.RetrofitAPI;
 import com.myriding.http.RetrofitClient;
 import com.myriding.model.Home;
@@ -51,6 +56,8 @@ import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
 
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -84,13 +91,12 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
 
     MaterialCalendarView materialCalendarView;
     final OneDayDecorator oneDayDecorator = new OneDayDecorator();
+    int selectYear, selectMonth, selectDay;
 
     private List<Home> lstHome = new ArrayList<>();
 
     int currentPost = 0, totalPostNum = 0;
     int[] todayPostID;
-
-    int selectYear, selectMonth, selectDay;
 
     @Nullable
     @Override
@@ -139,11 +145,11 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // 초기 데이터 획득
         selectYear = CalendarDay.today().getYear();
         selectMonth =  CalendarDay.today().getMonth() + 1;
         selectDay = CalendarDay.today().getDay();
 
-        // 초기 데이터 획득
         getOnedayRecord(selectYear, selectMonth, selectDay);
     }
 
@@ -181,9 +187,8 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         mMap = googleMap;
-        LatLng seoul = new LatLng(37.52487, 126.92723);
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(seoul, 16));
         mMap.getUiSettings().setZoomControlsEnabled(false);
+        mMap.getUiSettings().setAllGesturesEnabled(false);
     }
 
     private void initCalendar(final View view, final @Nullable Bundle savedInstanceState) {
@@ -210,6 +215,7 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
                 selectYear = date.getYear();
                 selectMonth = date.getMonth() + 1;
                 selectDay = date.getDay();
+                layout_record.setVisibility(View.INVISIBLE);
                 getOnedayRecord(selectYear, selectMonth, selectDay);
             }
         });
@@ -243,7 +249,6 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
     }
 
     private RetrofitAPI retrofitAPI;
-    /* 리사이클러뷰에 최초로 넣어줄 데이터를 load */
     private void getOnedayRecord(int year, int month, int day) {
         retrofitAPI = RetrofitClient.getApiService();
 
@@ -276,7 +281,6 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
                         setPost();
                     } else {
                         Log.d(TAG, "IN");
-                        // layout_record.setVisibility(View.INVISIBLE);
                     }
                 } else {
                     Log.d(TAG, "라이딩 일지 조회 실패");
@@ -302,19 +306,14 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
                     Log.d(TAG, "라이딩 일지 조회 성공");
 
                     HomeValue homeValue = response.body().getHomeValue();
-
                     if(homeValue != null) {
                         if (homeValue.getMongoValue() != null) {
                             List<MongoValue> mongoValues = homeValue.getMongoValue();
-
                             setRouteData(mongoValues);
                         }
 
                         setPost();
                     }
-
-//                    Gson gson = new GsonBuilder().setPrettyPrinting().create();
-//                    Log.d(TAG, gson.toJson(response.body()));
                 } else {
                     Log.d(TAG, "라이딩 일지 조회 실패");
                 }
@@ -322,7 +321,6 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
 
             @Override
             public void onFailure(Call<HomeResponse> call, Throwable t) {
-                // Toast.makeText(getContext(), "서버 통신 실패", Toast.LENGTH_SHORT).show();
                 Log.d(TAG, t.getMessage());
             }
         });
@@ -330,7 +328,6 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
 
     private void setPostData(List<MysqlValue> mysqlValues) {
         lstHome.clear();
-
         for(MysqlValue mysqlValue : mysqlValues) {
             lstHome.add(
                     new Home(
@@ -344,8 +341,6 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
                     )
             );
         }
-
-
     }
 
     private void setRouteData(List<MongoValue> mongoValues) {
@@ -371,14 +366,24 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
         polylineOptions.width(10);
         polylineOptions.addAll(lstHome.get(currentPost).getArrayPoints());
 
-        int center = (int) (lstHome.get(currentPost).getArrayPoints().size() / 2);
-        LatLng latLng = new LatLng(
-                lstHome.get(currentPost).getArrayPoints().get(center).latitude,
-                lstHome.get(currentPost).getArrayPoints().get(center).longitude
+        mMap.clear();
+
+        // 경로의 중간지점을 중심으로 카메라 줌
+        LatLng startPosition = new LatLng(
+                lstHome.get(currentPost).getArrayPoints().get(0).latitude,
+                lstHome.get(currentPost).getArrayPoints().get(0).longitude
         );
 
-        mMap.clear();
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
+        int size = lstHome.get(currentPost).getArrayPoints().size();
+        LatLng endPosition = new LatLng(
+                lstHome.get(currentPost).getArrayPoints().get(size - 1).latitude,
+                lstHome.get(currentPost).getArrayPoints().get(size - 1).longitude
+        );
+
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        builder.include(startPosition).include(endPosition);
+        LatLngBounds bounds = builder.build();
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(bounds.getCenter(), 16));
         mMap.addPolyline(polylineOptions);
 
         if(layout_record.getVisibility() == View.INVISIBLE) layout_record.setVisibility(View.VISIBLE);
@@ -391,4 +396,5 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
         if(currentPost > 0) btn_prev.setVisibility(View.VISIBLE);
         else btn_prev.setVisibility(View.INVISIBLE);
     }
+
 }

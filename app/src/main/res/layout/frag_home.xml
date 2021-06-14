@@ -7,11 +7,6 @@
     android:background="@android:color/white"
     android:orientation="vertical"
     tools:context=".fragment.FragHome">
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#f0f0f0"/>
-
     <com.prolificinteractive.materialcalendarview.MaterialCalendarView
         android:id="@+id/calendarView"
         android:layout_width="match_parent"
@@ -164,7 +159,8 @@
                 android:layout_marginTop="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/post_speed_avg" />
+                app:layout_constraintTop_toBottomOf="@+id/post_speed_avg"
+                />
 
             <TextView
                 android:id="@+id/btn_next"
@@ -193,9 +189,4 @@
                 app:layout_constraintTop_toBottomOf="@+id/home_map"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
-
-    <!--<androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/home_recyclerview"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>-->
 </LinearLayout>
