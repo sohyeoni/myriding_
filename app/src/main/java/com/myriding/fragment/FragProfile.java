@@ -2,6 +2,7 @@ package com.myriding.fragment;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -87,12 +88,12 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class FragProfile extends Fragment {
-    private static String TAG = "FragProfile";
-    private static String DISTANCE_CHART_COLOR = "#FFB85A";
-    private static String TIME_CHART_COLOR = "#9FC93C";
-    private static String AVG_SPEED_CHART_COLOR = "#1266FF";
-    private static String MAX_SPEED_CHART_COLOR = "#C98AFF";
-    private static int UNCLICKED_BUTTON_COLOR = Color.parseColor("#d3d3d3");
+    private static final String TAG = "FragProfile";
+    private static final String DISTANCE_CHART_COLOR = "#FFB85A";
+    private static final String TIME_CHART_COLOR = "#9FC93C";
+    private static final String AVG_SPEED_CHART_COLOR = "#1266FF";
+    private static final String MAX_SPEED_CHART_COLOR = "#C98AFF";
+    private static final int UNCLICKED_BUTTON_COLOR = Color.parseColor("#d3d3d3");
     private static final int PICK_FROM_ALBUM = 1;
 
     private View view;
@@ -127,12 +128,9 @@ public class FragProfile extends Fragment {
         tv_count = (TextView) view.findViewById(R.id.profile_count);
 
         img_picture = (ImageView) view.findViewById(R.id.profile_img);
-        // img_picture.setBackground(new ShapeDrawable(new OvalShape()));
-        // img_picture.setClipToOutline(true);
         img_picture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO 사진을 갤러리에서 가져오기
                 checkSelfPermission();
                 Intent intent = new Intent(Intent.ACTION_PICK);
                 intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
