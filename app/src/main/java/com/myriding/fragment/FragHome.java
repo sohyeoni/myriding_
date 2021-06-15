@@ -412,8 +412,23 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
 
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         builder.include(startPosition).include(endPosition);
+
+        if(lstHome.get(currentPost).getArrayPoints().size() > 4) {
+            int offset = (int) (lstHome.get(currentPost).getArrayPoints().size() / 4);
+
+            LatLng secondPosition = new LatLng(
+                    lstHome.get(currentPost).getArrayPoints().get(offset).latitude,
+                    lstHome.get(currentPost).getArrayPoints().get(offset).longitude
+            );
+            LatLng thirdPosition = new LatLng(
+                    lstHome.get(currentPost).getArrayPoints().get(offset*2).latitude,
+                    lstHome.get(currentPost).getArrayPoints().get(offset*2).longitude
+            );
+            builder.include(secondPosition).include(thirdPosition);
+        }
         LatLngBounds bounds = builder.build();
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(bounds.getCenter(), 16));
+        // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(bounds.getCenter(), 16));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 350));
         mMap.addPolyline(polylineOptions);
 
         if(layout_record.getVisibility() == View.INVISIBLE) layout_record.setVisibility(View.VISIBLE);

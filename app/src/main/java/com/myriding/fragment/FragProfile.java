@@ -231,6 +231,9 @@ public class FragProfile extends Fragment {
                 if(response.isSuccessful()) {
                     Profile profile = response.body().getProfile();
 
+                    /*Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                    Log.d(TAG, gson.toJson(response.body()));*/
+
                     if(profile != null) {
                         setUserData(profile);
                         setGraphDatas(profile.getStat());

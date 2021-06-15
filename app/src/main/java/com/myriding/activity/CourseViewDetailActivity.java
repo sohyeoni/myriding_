@@ -17,7 +17,10 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.myriding.R;
 import com.myriding.atapter.MyCourseAdapter;
 import com.myriding.http.RetrofitAPI;
@@ -154,14 +157,35 @@ public class CourseViewDetailActivity extends AppCompatActivity implements OnMap
             arrayPoints.add(new LatLng(route.getLat(), route.getLng()));
         }
 
-        int center = (int) (routes.size() / 2);
-        LatLng latLng = new LatLng(routes.get(center).getLat(), routes.get(center).getLng());
+        // int center = (int) (routes.size() / 2);
+        // LatLng latLng = new LatLng(routes.get(center).getLat(), routes.get(center).getLng());
 
         polylineOptions.color(Color.RED);
         polylineOptions.width(10);
         polylineOptions.addAll(arrayPoints);
 
-        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+        // mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+        LatLng startPosition = new LatLng(
+                routes.get(0).getLat(), routes.get(0).getLng()
+        );
+
+        int size = routes.size();
+        LatLng endPosition = new LatLng(
+                routes.get(size - 1).getLat(), routes.get(size - 1).getLng()
+        );
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        builder.include(startPosition).include(endPosition);
+
+        if(arrayPoints.size() > 4) {
+            int offset = (int) (arrayPoints.size() / 4);
+
+            LatLng secondPosition = new LatLng(routes.get(offset).getLat(), routes.get(offset).getLng());
+            LatLng thirdPosition = new LatLng(routes.get(offset*2).getLat(), routes.get(offset*2).getLng());
+            builder.include(secondPosition).include(thirdPosition);
+        }
+
+        LatLngBounds bounds = builder.build();
+        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 350));
         mGoogleMap.addPolyline(polylineOptions);
     }
 
