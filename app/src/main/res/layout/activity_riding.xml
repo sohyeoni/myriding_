@@ -269,7 +269,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/graphic_bike2"
-            android:layout_marginTop="32dp"/>
+            android:layout_marginTop="50dp"/>
 
         <com.myriding.CustomView
             android:id="@+id/customView"

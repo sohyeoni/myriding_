@@ -12,15 +12,16 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.myriding.R;
+import com.myriding.model.BadgePreview;
 import com.myriding.model.Profile;
 
 import java.util.List;
 
 public class ProfileRecyclerViewAdapter extends RecyclerView.Adapter<ProfileRecyclerViewAdapter.MyViewHolder> {
     Context mContext;
-    List<Profile> mData;
+    List<BadgePreview> mData;
 
-    public ProfileRecyclerViewAdapter(Context mContext, List<Profile> mData) {
+    public ProfileRecyclerViewAdapter(Context mContext, List<BadgePreview> mData) {
         this.mContext = mContext;
         this.mData = mData;
     }
@@ -37,9 +38,9 @@ public class ProfileRecyclerViewAdapter extends RecyclerView.Adapter<ProfileRecy
 
     @Override
     public void onBindViewHolder(@NonNull ProfileRecyclerViewAdapter.MyViewHolder holder, int position) {
-//        holder.tv_number.setText(mData.get(position).getNumber());
-//        holder.tv_title.setText(mData.get(position).getTitle());
-//        holder.img.setImageResource(mData.get(position).getPhoto());
+        holder.tv_numOfBadge.setText(mData.get(position).getNumOfBadgeToString());
+        holder.tv_title.setText(mData.get(position).getBadgeType());
+        holder.img.setImageResource(mData.get(position).getBadgeImage());
     }
 
     @Override
@@ -48,15 +49,15 @@ public class ProfileRecyclerViewAdapter extends RecyclerView.Adapter<ProfileRecy
     }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
-        private TextView tv_title, tv_number;
+        private TextView tv_title, tv_numOfBadge;
         private ImageView img;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
 
-//            tv_title = (TextView) itemView.findViewById(R.id.kind_badge);
-//            tv_number = (TextView) itemView.findViewById(R.id.number_badge);
-//            img = (ImageView) itemView.findViewById(R.id.img_badge);
+            tv_title = (TextView) itemView.findViewById(R.id.kind_badge);
+            tv_numOfBadge = (TextView) itemView.findViewById(R.id.number_badge);
+            img = (ImageView) itemView.findViewById(R.id.img_badge);
         }
     }
 }

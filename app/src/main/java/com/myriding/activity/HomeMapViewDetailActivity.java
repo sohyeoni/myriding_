@@ -61,6 +61,7 @@ public class HomeMapViewDetailActivity extends AppCompatActivity implements OnMa
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        mGoogleMap.getUiSettings().setTiltGesturesEnabled(false);
     }
 
     private RetrofitAPI retrofitAPI;

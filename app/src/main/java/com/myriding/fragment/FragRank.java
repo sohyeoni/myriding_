@@ -13,6 +13,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.myriding.R;
 import com.myriding.atapter.RankRecyclerViewAdapter;
 import com.myriding.http.RetrofitAPI;
@@ -55,6 +57,7 @@ public class FragRank extends Fragment {
 
         lstRank = new ArrayList<>();
         getRank();
+        getRankPicture();
     }
 
     private RetrofitAPI retrofitAPI;
@@ -80,7 +83,33 @@ public class FragRank extends Fragment {
 
             @Override
             public void onFailure(Call<RankResponse> call, Throwable t) {
-                Toast.makeText(getContext(), "데이터 형식 확인할 것", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "랭킹 획득 실패2", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, t.getMessage());
+
+            }
+        });
+    }
+
+    private void getRankPicture() {
+        retrofitAPI = RetrofitClient.getApiService();
+
+        Call<RankResponse> call = retrofitAPI.getRankPicture(Token.getToken());
+        call.enqueue(new Callback<RankResponse>() {
+            @Override
+            public void onResponse(Call<RankResponse> call, Response<RankResponse> response) {
+                if(response.isSuccessful()) {
+                    Toast.makeText(getContext(), "랭킹 이미지 획득 성공", Toast.LENGTH_SHORT).show();
+
+                    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                    Log.d(TAG, gson.toJson(response.body()));
+                } else {
+                    Toast.makeText(getContext(), "랭킹 이미지 획득 실패", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<RankResponse> call, Throwable t) {
+                Toast.makeText(getContext(), "랭킹 이미지 획득 실패2", Toast.LENGTH_SHORT).show();
                 Log.d(TAG, t.getMessage());
             }
         });

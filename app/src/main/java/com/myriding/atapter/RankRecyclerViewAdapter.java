@@ -27,7 +27,6 @@ import com.myriding.http.RetrofitClient;
 import com.myriding.model.Rank;
 import com.myriding.model.RankData;
 import com.myriding.model.RankProfileResponse;
-import com.myriding.model.RankResponse;
 import com.myriding.model.Token;
 
 import java.text.DecimalFormat;
@@ -59,7 +58,7 @@ public class RankRecyclerViewAdapter extends RecyclerView.Adapter<RankRecyclerVi
 
         /* 랭킹 프로필 상세보기창 설정 */
         myDialog = new Dialog(mContext);
-        myDialog.setContentView(R.layout.profile_rank);
+        myDialog.setContentView(R.layout.rank_profile);
         myDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
         vHolder.item_rank.setOnClickListener(new View.OnClickListener() {

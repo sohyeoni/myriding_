@@ -16,6 +16,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -103,8 +104,9 @@ public class CourseViewDetailActivity extends AppCompatActivity implements OnMap
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
 
-        LatLng seoul = new LatLng(37.52487, 126.92723);
-        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul, 16));
+        // LatLng seoul = new LatLng(37.52487, 126.92723);
+        // mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul, 16));
+        mGoogleMap.getUiSettings().setTiltGesturesEnabled(false);
     }
 
     private RetrofitAPI retrofitAPI;
@@ -157,14 +159,20 @@ public class CourseViewDetailActivity extends AppCompatActivity implements OnMap
             arrayPoints.add(new LatLng(route.getLat(), route.getLng()));
         }
 
-        // int center = (int) (routes.size() / 2);
-        // LatLng latLng = new LatLng(routes.get(center).getLat(), routes.get(center).getLng());
+        /*int center = (int) (routes.size() / 2);
+        LatLng latLng = new LatLng(routes.get(center).getLat(), routes.get(center).getLng());
 
         polylineOptions.color(Color.RED);
         polylineOptions.width(10);
         polylineOptions.addAll(arrayPoints);
 
-        // mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+        mGoogleMap.addPolyline(polylineOptions);*/
+
+        polylineOptions.color(Color.RED);
+        polylineOptions.width(10);
+        polylineOptions.addAll(arrayPoints);
+
         LatLng startPosition = new LatLng(
                 routes.get(0).getLat(), routes.get(0).getLng()
         );

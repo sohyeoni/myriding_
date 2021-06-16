@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
@@ -26,9 +27,13 @@ import com.myriding.model.RegisterResponse;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -63,6 +68,7 @@ public class SignupActivity extends AppCompatActivity {
                 String nickname = et_nickname.getText().toString();
 
                 if(vaildateRegisterInfo(account, password, passwordConfirmation, nickname)) {
+                    // Uri uri = Uri.parse("android.resource://com.myriding/drawable" + R.drawable.img_user);
                     inserRegister(account, password, passwordConfirmation, nickname);
                 }
             }
@@ -82,7 +88,6 @@ public class SignupActivity extends AppCompatActivity {
                 RegisterResponse registerResponse = response.body();
                 if(registerResponse != null) {
                     if(response.isSuccessful()) {
-                        // if(response.code() == 201) {
                         AlertDialog.Builder dialog = new AlertDialog.Builder(SignupActivity.this);
                         dialog.setMessage(registerResponse.getMessage());
 
@@ -152,6 +157,20 @@ public class SignupActivity extends AppCompatActivity {
 
         byte[] image = outputStream.toByteArray();
         String profileImageBase64 = Base64.encodeToString(image, Base64.DEFAULT);
+    }
+
+    public byte[] getBytes(InputStream is) throws IOException {
+        ByteArrayOutputStream byteBuff = new ByteArrayOutputStream();
+
+        int buffSize = 1024;
+        byte[] buff = new byte[buffSize];
+
+        int len = 0;
+        while ((len = is.read(buff)) != -1) {
+            byteBuff.write(buff, 0, len);
+        }
+
+        return byteBuff.toByteArray();
     }
 
     public static boolean isValidPassword(String password) {

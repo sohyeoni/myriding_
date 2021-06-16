@@ -4,19 +4,20 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 public class Badge {
-    @SerializedName("type")
-    @Expose
-    private Integer type;
-    @SerializedName("name")
-    @Expose
+    private int img;
     private String name;
 
-    public Integer getType() {
-        return type;
+    public Badge(int img, String name) {
+        this.img = img;
+        this.name = name;
     }
 
-    public void setType(Integer type) {
-        this.type = type;
+    public int getImg() {
+        return img;
+    }
+
+    public void setImg(int img) {
+        this.img = img;
     }
 
     public String getName() {

@@ -49,8 +49,16 @@ public interface RetrofitAPI {
             @Header("Authorization") String authToke
     );
 
+    @GET("badge")
+    Call<JSONObject> getBadge(
+            @Header("Authorization") String authToke
+    );
+
     @GET("rank")
     Call<RankResponse> getRank(@Header("Authorization") String authToken);
+
+    @GET("rank/picture")
+    Call<RankResponse> getRankPicture(@Header("Authorization") String authToken);
 
     @GET("rank/{user_id}")
     Call<RankProfileResponse> getRankProfile(

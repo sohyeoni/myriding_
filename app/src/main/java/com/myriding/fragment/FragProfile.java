@@ -2,18 +2,12 @@ package com.myriding.fragment;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.ActionBar;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.OvalShape;
-import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
@@ -43,39 +37,24 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.utils.EntryXComparator;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.myriding.R;
-import com.myriding.activity.SearchActivity;
+import com.myriding.activity.BadgeHomeActivity;
 import com.myriding.atapter.ProfileRecyclerViewAdapter;
-import com.myriding.atapter.SearchRecyclerViewAdapter;
 import com.myriding.http.RetrofitAPI;
 import com.myriding.http.RetrofitClient;
-import com.myriding.model.CourseData;
-import com.myriding.model.CourseResponse;
-import com.myriding.model.HomeResponse;
-import com.myriding.model.HomeValue;
-import com.myriding.model.MongoValue;
-import com.myriding.model.MysqlValue;
-import com.myriding.model.PopularCourse;
+import com.myriding.model.BadgePreview;
 import com.myriding.model.Profile;
 import com.myriding.model.ProfileResponse;
 import com.myriding.model.Stat;
 import com.myriding.model.Token;
-import com.prolificinteractive.materialcalendarview.CalendarDay;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
@@ -112,7 +91,11 @@ public class FragProfile extends Fragment {
 
     private TextView tv_badgeMore;
     private RecyclerView myrecyclerview;
-    private List<Profile> lstBadge;
+
+    private ProfileRecyclerViewAdapter recyclerAdapter;
+    private List<BadgePreview> lstBadge;
+
+    int[] numOfBadges;
 
     @Nullable
     @Override
@@ -137,6 +120,8 @@ public class FragProfile extends Fragment {
                 startActivityForResult(intent, PICK_FROM_ALBUM);
             }
         });
+
+        // Glide.with(this).load("http://goo.gl/gEgYUd").into(img_picture);
 
         radioGroup = (RadioGroup) view.findViewById(R.id.rbGroup);
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -179,18 +164,19 @@ public class FragProfile extends Fragment {
         tv_badgeMore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Intent intent = new Intent(getActivity(), BadgeHomeActivity.class);
-//                startActivity(intent);
+                Intent intent = new Intent(getActivity(), BadgeHomeActivity.class);
+
+                // int[] values = new int[] {0, 5, 10, 15, 20};
+                intent.putExtra("badgeCount", numOfBadges);
+
+                startActivity(intent);
             }
         });
         // -->
 
         // <-- 배찌 목록 생성
-//        myrecyclerview = (RecyclerView) view.findViewById(R.id.profile_recyclerview);
-//        ProfileRecyclerViewAdapter recyclerAdapter = new ProfileRecyclerViewAdapter(getContext(), lstBadge);
-//        // RecyclerView item 배치 Horizontal로 설정
-//        myrecyclerview.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
-//        myrecyclerview.setAdapter(recyclerAdapter);
+        myrecyclerview = (RecyclerView) view.findViewById(R.id.profile_recyclerview);
+        myrecyclerview.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
         // -->
 
         return view;
@@ -200,15 +186,7 @@ public class FragProfile extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // <-- 배찌 리스트 생성
-//        lstBadge = new ArrayList<>();
-//
-//        lstBadge.add(new Profile(R.drawable.ic_badge, "DISTANCE", "2 / 4 개"));
-//        lstBadge.add(new Profile(R.drawable.ic_badge, "SPEED", "1 / 4 개"));
-//        lstBadge.add(new Profile(R.drawable.ic_badge, "TIME", "1 / 4 개"));
-//        lstBadge.add(new Profile(R.drawable.ic_badge, "PERIOD", "4 / 7 개"));
-//        lstBadge.add(new Profile(R.drawable.ic_badge, "SCORE", "5 / 6 개"));
-        // -->
+        lstBadge = new ArrayList<>();
     }
 
     // <-- 라디오 버튼 클릭 시 텍스트 색상 변경 메서드
@@ -238,6 +216,18 @@ public class FragProfile extends Fragment {
                         setUserData(profile);
                         setGraphDatas(profile.getStat());
                         makeSingleChart(distances, "거리", DISTANCE_CHART_COLOR);
+
+                        lstBadge.add(new BadgePreview("DISTANCE", profile.getBadge().getDistanceBadge(), R.drawable.img_badge_distance));
+                        lstBadge.add(new BadgePreview("SPEED", profile.getBadge().getMaxSpeedBadge(), R.drawable.img_badge_speed));
+                        lstBadge.add(new BadgePreview("TIME", profile.getBadge().getTimeBadge(), R.drawable.img_badge_time));
+
+                        numOfBadges = new int[lstBadge.size()];
+                        numOfBadges[0] = profile.getBadge().getDistanceBadge();
+                        numOfBadges[1] = profile.getBadge().getMaxSpeedBadge();
+                        numOfBadges[2] = profile.getBadge().getTimeBadge();
+
+                        recyclerAdapter = new ProfileRecyclerViewAdapter(getContext(), lstBadge);
+                        myrecyclerview.setAdapter(recyclerAdapter);
                     }
                 } else {
                     try {

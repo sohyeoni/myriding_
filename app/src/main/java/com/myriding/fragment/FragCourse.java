@@ -122,7 +122,7 @@ public class FragCourse extends Fragment {
                     try {
                         String errorBody = response.errorBody().string();
 
-                        Toast.makeText(getContext(), "토큰 인증 실패", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "인기 코스 조회 실패", Toast.LENGTH_SHORT).show();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -155,6 +155,7 @@ public class FragCourse extends Fragment {
                     myCourseRecyclerView.setAdapter(myCourseAdapter);
                 } else {
                     Toast.makeText(getContext(), "내 라이딩 경로 조회 실패", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, response.body() + "");
                 }
             }
 

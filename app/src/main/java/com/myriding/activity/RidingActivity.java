@@ -32,6 +32,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -97,7 +98,8 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
     private Button btn_showMap;
     private Button btn_showRecord;
     private Button btn_showSensor;
-
+    private ImageButton btn_left;
+    private ImageButton btn_right;
     // private GoogleMap mGoogleMap;
 
     private boolean isRiding = false;
@@ -201,6 +203,8 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
         btn_showMap.setOnClickListener(this);
         btn_showRecord.setOnClickListener(this);
         btn_showSensor.setOnClickListener(this);
+        btn_left = (ImageButton) findViewById(R.id.riding_left_button);
+        btn_right = (ImageButton) findViewById(R.id.riding_right_button);
 
         tv_recTime = (TextView) findViewById(R.id.riding_current_time);
         tv_miniRecTime = (TextView) findViewById(R.id.riding_mini_rec_time);
@@ -456,6 +460,7 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
         miniRecordLayout.setVisibility(View.VISIBLE);
 
         isRiding = true;
+
         myRecords = new ArrayList<>();
         myPoints = new ArrayList<>();
 
@@ -472,6 +477,13 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
     }
 
     public void clickPause(View view) {
+        /*thread = new Thread(){
+            public void run(){
+                sendSignaltoBackPhone("P");
+            }
+        };
+        thread.start();*/
+
         startLinearLayout.setVisibility(View.GONE);
         pauseLinearLayout.setVisibility(View.GONE);
         restartStopLinearLayout.setVisibility(View.VISIBLE);
@@ -479,10 +491,24 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
         isRiding = false;
     }
 
+    boolean isFirst = true;
     public void clickRestart(View view) {
         startLinearLayout.setVisibility(View.GONE);
         pauseLinearLayout.setVisibility(View.VISIBLE);
         restartStopLinearLayout.setVisibility(View.GONE);
+
+        if(!isFirst) {
+            thread = new Thread() {
+                public void run() {
+                    //if(lastSignal == "S")
+                    Log.d(TAG, "START");
+                    sendSignaltoBackPhone("S");
+                }
+            };
+            thread.start();
+        } else {
+            isFirst = false;
+        }
 
         if(isRiding == false)
             isRiding = true;
@@ -490,7 +516,12 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
 
     // TODO: 거리와 시간 확인 후 저장 dialog 또는 삭제 / 종료 dialog
     public void clickStop(View view) {
-        endDialog();
+        if(myRecords.size() > 0 && (totalTime / 60) < 1) {
+            endDialog();
+        } else {
+            // 추가한 것
+            showRecordingMore();
+        }
     }
 
     public void clickLeftSignal(View view) {
@@ -577,7 +608,7 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
     }
 
     private int totalTime;
-    private String lastSignal = "P";
+    private String lastSignal = "";
     class TimeHandler extends Handler {
         @Override
         public void handleMessage(@NonNull Message msg) {
@@ -602,12 +633,12 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
             if(isUseBackPhone) {
                 thread = new Thread() {
                     public void run() {
-                        // if(speedTemp < 1 && lastSignal != "P") {
-                        if (speedTemp < 1) {
+                        if(speedTemp < 1 && lastSignal != "P") {
+                        // if (speedTemp < 1) {
                             sendSignaltoBackPhone("P");
                             lastSignal = "P";
-                            //} else if(speedTemp > 1 && lastSignal != "S") {
-                        } else if (speedTemp > 1) {
+                        } else if(speedTemp > 1 && lastSignal != "S" && isRiding == true) {
+                        // } else if (speedTemp > 1) {
                             sendSignaltoBackPhone("S");
                             lastSignal = "S";
                         }
@@ -654,7 +685,7 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
                 .setPositiveButton("사용", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        //isUseBackPhone = true;
+                        isUseBackPhone = true;
                         //if(isUseBackPhone) {
                         connectBackPhone();
                         //}
@@ -664,14 +695,23 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         isUseBackPhone = false;
+                        btn_left.setVisibility(View.GONE);
+                        btn_right.setVisibility(View.GONE);
                     }
                 });
         dialog.show();
     }
 
+    // 추가한 것
+    private void showRecordingMore() {
+        final AlertDialog.Builder dialog = new AlertDialog.Builder(this );
+        dialog.setMessage("기록이 짧습니다. 더 기록해주세요");
+        dialog.show();
+    }
+
     /* 라이딩 기록에 따른 dialog 출력 메서드 */
     private void endDialog() {
-        // TODO: 라이딩 기록에 따라 저장 dialog 또는 지속/종료 dialog 출력
+        // TODO 후방에 종료 신호 주기 -> 후방에서는 블루투스 및 소켓 대기 종료 작업
         final EditText et_ridingName = new EditText(RidingActivity.this);
         AlertDialog.Builder dialog = new AlertDialog.Builder(RidingActivity.this);
 
@@ -681,16 +721,6 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
             @SuppressLint("MissingPermission")
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                // TODO: 데이터 저장 후 home으로 이동
-                // 지도 캡쳐
-                // mGoogleMap.setMyLocationEnabled(false);
-                // mapSnapshot();
-
-                //startPointAddress = getCurrentAddress(myRecords.get(0).getLat(), myRecords.get(0).getLat());
-                //int recordSize = myRecords.size();
-                //String endPointAddress = getCurrentAddress(myRecords.get(recordSize - 1).getLat(), myRecords.get(recordSize - 1).getLat());
-
-
                 String title = et_ridingName.getText().toString();
 
                 int time = (int)(totalTime / 60);
@@ -716,13 +746,10 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
                 Log.d(TAG + "[RECORD] : ", distanceTemp + ", " + avgSpeedTemp + ", " + maxSpeed);
                 Log.d(TAG + "[RECORD] : ", (myRecordForJson instanceof JSONArray) ? "true" : "false");
 
-                // TODO : 1분 미만은 저장 안되록
+                // 경로가 없거나 1분 미만은 저장 안되록
                 setMyRecord(title, distanceTemp, time, startPointAddress, endPointAddress, avgSpeedTemp, maxSpeed, myRecordForJson);
 
-
                 dialogInterface.dismiss();
-
-                timeThread.interrupt();
             }
         });
 
@@ -735,30 +762,6 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
 
         dialog.show();
     }
-
-    /* Google map snapshot 메서드 */
-    /*public void mapSnapshot() {
-        GoogleMap.SnapshotReadyCallback callback = new GoogleMap.SnapshotReadyCallback() {
-            @Override
-            public void onSnapshotReady(Bitmap bitmap) {
-                try {
-                    File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-                    path.mkdirs();
-
-                    File file = new File(path, System.currentTimeMillis() + ".jpg");
-                    file.createNewFile();
-
-                    FileOutputStream out = new FileOutputStream(file);
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-                    Toast.makeText(getApplicationContext(), "스냅샷 성공", Toast.LENGTH_SHORT).show();
-                } catch(Exception e) {
-                    e.printStackTrace();
-                    Toast.makeText(getApplicationContext(), "스냅샷 실패", Toast.LENGTH_SHORT).show();
-                }
-            }
-        };
-        mGoogleMap.snapshot(callback);
-    }*/
 
     public static String getIPAddress(boolean useIPv4) {
         try {
@@ -906,12 +909,12 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
                 Log.d(TAG, obj.toString());
 
                 sensorValue = obj.toString();
-                customView.senValue1 = Integer.parseInt(sensorValue);
+                // customView.senValue1 = Integer.parseInt(sensorValue);
 
-                /*String[] senValueArr = sensorValue.split(":");
+                String[] senValueArr = sensorValue.split(" : ");
                 customView.senValue1 = Integer.parseInt(senValueArr[0]);
                 customView.senValue2 = Integer.parseInt(senValueArr[1]);
-                customView.senValue3 = Integer.parseInt(senValueArr[2]);*/
+                customView.senValue3 = Integer.parseInt(senValueArr[2]);
 
                 socket.close();
             }
@@ -957,6 +960,15 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
             public void onResponse(Call<JSONObject> call, Response<JSONObject> response) {
                 if(response.isSuccessful()) {
                     Toast.makeText(RidingActivity.this, "라이딩 경로 저장 성공", Toast.LENGTH_SHORT).show();
+
+                    thread = new Thread() {
+                        public void run() {
+                            sendSignaltoBackPhone("E");
+                        }
+                    };
+                    thread.start();
+
+                    timeThread.interrupt();
 
                     Intent intent = new Intent(RidingActivity.this, BottomNavigationActivity.class);
                     startActivity(intent);

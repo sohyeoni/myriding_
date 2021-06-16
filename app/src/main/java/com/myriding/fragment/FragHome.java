@@ -396,7 +396,7 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
         polylineOptions.width(10);
         polylineOptions.addAll(lstHome.get(currentPost).getArrayPoints());
 
-        mMap.clear();
+        if(mMap != null) mMap.clear();
 
         // 경로의 중간지점을 중심으로 카메라 줌
         LatLng startPosition = new LatLng(
@@ -427,7 +427,6 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
             builder.include(secondPosition).include(thirdPosition);
         }
         LatLngBounds bounds = builder.build();
-        // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(bounds.getCenter(), 16));
         mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 350));
         mMap.addPolyline(polylineOptions);
 

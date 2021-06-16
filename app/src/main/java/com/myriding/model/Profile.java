@@ -26,7 +26,7 @@ public class Profile {
     private List<Stat> stat = null;
     @SerializedName("badge")
     @Expose
-    private List<Badge> badge = null;
+    private BadgeCount badge = null;
 
     public int getId() {
         return id;
@@ -76,11 +76,11 @@ public class Profile {
         this.stat = stat;
     }
 
-    public List<Badge> getBadge() {
+    public BadgeCount getBadge() {
         return badge;
     }
 
-    public void setBadge(List<Badge> badge) {
+    public void setBadge(BadgeCount badge) {
         this.badge = badge;
     }
 }
