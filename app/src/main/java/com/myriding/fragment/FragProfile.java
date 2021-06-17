@@ -8,6 +8,8 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
@@ -54,6 +56,7 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -74,6 +77,8 @@ public class FragProfile extends Fragment {
     private static final String MAX_SPEED_CHART_COLOR = "#C98AFF";
     private static final int UNCLICKED_BUTTON_COLOR = Color.parseColor("#d3d3d3");
     private static final int PICK_FROM_ALBUM = 1;
+
+    DecimalFormat scoreFormat = new DecimalFormat("#,###");
 
     private View view;
 
@@ -251,8 +256,8 @@ public class FragProfile extends Fragment {
 
     void setUserData(Profile profile) {
         tv_username.setText(profile.getUserNickname());
-        tv_score.setText(profile.getUserScoreOfRiding() + "점");
-        tv_count.setText(profile.getUserNumOfRiding() + "회");
+        tv_score.setText(scoreFormat.format(profile.getUserScoreOfRiding()) + "점");
+        tv_count.setText(scoreFormat.format(profile.getUserNumOfRiding()) + "회");
 
         try {
             String imgString = profile.getUserPicture().substring(22);
@@ -392,8 +397,7 @@ public class FragProfile extends Fragment {
         }
     }
 
-
-    Bitmap bm;
+    Uri imgUri;
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -403,20 +407,9 @@ public class FragProfile extends Fragment {
                 InputStream is = getActivity().getContentResolver().openInputStream(data.getData());
                 RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), getBytes(is));
                 MultipartBody.Part body = MultipartBody.Part.createFormData("user_picture", "image.jpg", requestFile);
-
-                bm = BitmapFactory.decodeStream(is);
                 is.close();
 
-                /*Bitmap bm = BitmapFactory.decodeStream(is);
-                is.close();
-                imageView.setImageBitmap(bm);*/
-
-                /*Uri uri = data.getData();
-                String imagePath = getFullPathFromUri(getContext(), uri);
-
-                File imageFile = new File(imagePath);
-                RequestBody body = RequestBody.create(imageFile, MediaType.parse("image/*"));
-                MultipartBody.Part part = MultipartBody.Part.createFormData("image", imageFile.getName(), body);*/
+                imgUri = data.getData();
 
                 updateProfileImage(body);
             } catch (Exception e) {
@@ -450,7 +443,7 @@ public class FragProfile extends Fragment {
             public void onResponse(Call<JSONObject> call, Response<JSONObject> response) {
                 if(response.isSuccessful()) {
                     Log.d(TAG, "저장 성공");
-                    img_picture.setImageBitmap(bm);
+                    img_picture.setImageURI(imgUri);
                 } else {
                     Log.d(TAG, "저장 실패");
                 }

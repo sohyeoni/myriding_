@@ -7,6 +7,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
@@ -78,15 +79,15 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
 
     private ConstraintLayout layout_record;
     private TextView tv_title;
-    private TextView tv_startPoint;
-    private TextView tv_endPoint;
     private TextView tv_distance;
+    private TextView tv_point;
     private TextView tv_time;
     private TextView tv_avgSpeed;
     private TextView tv_maxSpeed;
     private MapView mapView;
     private TextView btn_next;
     private TextView btn_prev;
+    private TextView tv_numOfPage;
     private View view_touch;
 
     GoogleMap mMap;
@@ -109,12 +110,15 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
 
         layout_record = (ConstraintLayout) view.findViewById(R.id.home_record_layout);
         tv_title = (TextView) view.findViewById(R.id.post_title);
-        tv_startPoint = (TextView) view.findViewById(R.id.post_start_point);
-        tv_endPoint = (TextView) view.findViewById(R.id.post_end_point);
         tv_distance = (TextView) view.findViewById(R.id.post_distance);
         tv_time = (TextView) view.findViewById(R.id.post_time);
         tv_avgSpeed = (TextView) view.findViewById(R.id.post_speed_avg);
         tv_maxSpeed = (TextView) view.findViewById(R.id.post_speed_max);
+        tv_numOfPage = (TextView) view.findViewById(R.id.home_page_count);
+        tv_point = (TextView) view.findViewById(R.id.post_point);
+        tv_point.setSingleLine(true);
+        tv_point.setEllipsize(TextUtils.TruncateAt.END);
+
         view_touch = (View) view.findViewById(R.id.home_view);
         view_touch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -205,7 +209,7 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
     }
 
     private void initCalendar(final View view, final @Nullable Bundle savedInstanceState) {
-        materialCalendarView = (MaterialCalendarView)view.findViewById(R.id.calendarView);
+        materialCalendarView = (MaterialCalendarView) view.findViewById(R.id.calendarView);
 
         // 달력 설정 (주 시작 요일, 달력 시작 범위, 달력 끝 범위, 달력 모드 = 주)
         materialCalendarView.state().edit()
@@ -295,7 +299,6 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
                         for(int i = 0; i < totalPostNum; i++) {
                             todayPostID[i] = homeValue.getTodayValue().get(i);
                         }
-
                         setPost();
                     }
                 } else {
@@ -326,6 +329,7 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
                     if(homeValue == null) {
                         Log.d(TAG, "라이딩 데이터 없음");
                         layout_record.setVisibility(View.INVISIBLE);
+                        tv_numOfPage.setVisibility(View.INVISIBLE);
                     }
 
                     if(homeValue != null) {
@@ -384,51 +388,55 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
     PolylineOptions polylineOptions;
     private void setPost() {
         tv_title.setText(lstHome.get(currentPost).getTitle());
-        tv_startPoint.setText(lstHome.get(currentPost).getStartPoint());
-        tv_endPoint.setText(lstHome.get(currentPost).getEndPoint());
+        tv_point.setText(lstHome.get(currentPost).getStartPoint() + " ~ " + lstHome.get(currentPost).getEndPoint());
         tv_distance.setText(dataFormat.format(lstHome.get(currentPost).getDistance()) + "km");
         tv_time.setText(lstHome.get(currentPost).getTime() + "");
         tv_avgSpeed.setText(dataFormat.format(lstHome.get(currentPost).getAvgSpeed()) + "km/h");
         tv_maxSpeed.setText(dataFormat.format(lstHome.get(currentPost).getMaxSpeed()) + "km/h");
+        tv_numOfPage.setText((currentPost + 1) + " / " + totalPostNum);
 
-        polylineOptions = new PolylineOptions();
-        polylineOptions.color(Color.RED);
-        polylineOptions.width(10);
-        polylineOptions.addAll(lstHome.get(currentPost).getArrayPoints());
+        tv_numOfPage.setVisibility(View.VISIBLE);
 
-        if(mMap != null) mMap.clear();
+        if(lstHome.get(currentPost).getArrayPoints().size() > 0) {
+            polylineOptions = new PolylineOptions();
+            polylineOptions.color(Color.RED);
+            polylineOptions.width(20);
+            polylineOptions.addAll(lstHome.get(currentPost).getArrayPoints());
 
-        // 경로의 중간지점을 중심으로 카메라 줌
-        LatLng startPosition = new LatLng(
-                lstHome.get(currentPost).getArrayPoints().get(0).latitude,
-                lstHome.get(currentPost).getArrayPoints().get(0).longitude
-        );
+            if (mMap != null) mMap.clear();
 
-        int size = lstHome.get(currentPost).getArrayPoints().size();
-        LatLng endPosition = new LatLng(
-                lstHome.get(currentPost).getArrayPoints().get(size - 1).latitude,
-                lstHome.get(currentPost).getArrayPoints().get(size - 1).longitude
-        );
-
-        LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        builder.include(startPosition).include(endPosition);
-
-        if(lstHome.get(currentPost).getArrayPoints().size() > 4) {
-            int offset = (int) (lstHome.get(currentPost).getArrayPoints().size() / 4);
-
-            LatLng secondPosition = new LatLng(
-                    lstHome.get(currentPost).getArrayPoints().get(offset).latitude,
-                    lstHome.get(currentPost).getArrayPoints().get(offset).longitude
+            // 경로의 중간지점을 중심으로 카메라 줌
+            LatLng startPosition = new LatLng(
+                    lstHome.get(currentPost).getArrayPoints().get(0).latitude,
+                    lstHome.get(currentPost).getArrayPoints().get(0).longitude
             );
-            LatLng thirdPosition = new LatLng(
-                    lstHome.get(currentPost).getArrayPoints().get(offset*2).latitude,
-                    lstHome.get(currentPost).getArrayPoints().get(offset*2).longitude
+
+            int size = lstHome.get(currentPost).getArrayPoints().size();
+            LatLng endPosition = new LatLng(
+                    lstHome.get(currentPost).getArrayPoints().get(size - 1).latitude,
+                    lstHome.get(currentPost).getArrayPoints().get(size - 1).longitude
             );
-            builder.include(secondPosition).include(thirdPosition);
+
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            builder.include(startPosition).include(endPosition);
+
+            if (lstHome.get(currentPost).getArrayPoints().size() > 4) {
+                int offset = (int) (lstHome.get(currentPost).getArrayPoints().size() / 4);
+
+                LatLng secondPosition = new LatLng(
+                        lstHome.get(currentPost).getArrayPoints().get(offset).latitude,
+                        lstHome.get(currentPost).getArrayPoints().get(offset).longitude
+                );
+                LatLng thirdPosition = new LatLng(
+                        lstHome.get(currentPost).getArrayPoints().get(offset * 2).latitude,
+                        lstHome.get(currentPost).getArrayPoints().get(offset * 2).longitude
+                );
+                builder.include(secondPosition).include(thirdPosition);
+            }
+            LatLngBounds bounds = builder.build();
+            mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 300));
+            mMap.addPolyline(polylineOptions);
         }
-        LatLngBounds bounds = builder.build();
-        mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 350));
-        mMap.addPolyline(polylineOptions);
 
         if(layout_record.getVisibility() == View.INVISIBLE) layout_record.setVisibility(View.VISIBLE);
 

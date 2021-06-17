@@ -42,7 +42,19 @@
             android:layout_marginLeft="10dp"
             android:layout_alignParentRight="true"
             android:layout_marginEnd="4dp"/>
+
         <TextView
+            android:id="@+id/point_myCourse"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start Point"
+            android:textSize="14sp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="4dp"
+            android:layout_below="@id/title_myCourse"
+            android:layout_toRightOf="@id/img_myCourse"/>
+
+        <!--<TextView
             android:id="@+id/startPoint_myCourse"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -73,7 +85,7 @@
             android:layout_below="@id/title_myCourse"
             android:layout_toRightOf="@id/point_myCourse"
             android:maxLines="1"
-            android:inputType="text"/>
+            android:inputType="text"/>-->
 
         <LinearLayout
             android:id="@+id/info_myCourse"
@@ -81,7 +93,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_toRightOf="@id/img_myCourse"
-            android:layout_below="@id/startPoint_myCourse"
+            android:layout_below="@id/point_myCourse"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="1dp">
             <TextView
@@ -108,7 +120,7 @@
         <ImageView
             android:layout_width="12dp"
             android:layout_height="12dp"
-            android:layout_below="@id/endPoint_myCourse"
+            android:layout_below="@id/point_myCourse"
             android:layout_toLeftOf="@id/like_myCourse"
             android:src="@drawable/ic_like_checked"
             android:layout_marginTop="4dp"
@@ -119,7 +131,7 @@
             android:id="@+id/like_myCourse"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/endPoint_myCourse"
+            android:layout_below="@id/point_myCourse"
             android:layout_alignParentRight="true"
             android:paddingEnd="4dp"
             android:text="1654"

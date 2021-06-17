@@ -18,7 +18,7 @@ public class RouteValue {
     private String routeImage;
     @SerializedName("route_distance")
     @Expose
-    private Integer routeDistance;
+    private double routeDistance;
     @SerializedName("route_time")
     @Expose
     private Integer routeTime;
@@ -39,13 +39,13 @@ public class RouteValue {
     private String routeEndPointAddress;
     @SerializedName("route_avg_degree")
     @Expose
-    private Integer routeAvgDegree;
+    private double routeAvgDegree;
     @SerializedName("route_max_altitude")
     @Expose
-    private Integer routeMaxAltitude;
+    private double routeMaxAltitude;
     @SerializedName("route_min_altitude")
     @Expose
-    private Integer routeMinAltitude;
+    private double routeMinAltitude;
     @SerializedName("created_at")
     @Expose
     private String createdAt;
@@ -85,11 +85,11 @@ public class RouteValue {
         this.routeImage = routeImage;
     }
 
-    public Integer getRouteDistance() {
+    public double getRouteDistance() {
         return routeDistance;
     }
 
-    public void setRouteDistance(Integer routeDistance) {
+    public void setRouteDistance(double routeDistance) {
         this.routeDistance = routeDistance;
     }
 
@@ -141,27 +141,27 @@ public class RouteValue {
         this.routeEndPointAddress = routeEndPointAddress;
     }
 
-    public Integer getRouteAvgDegree() {
+    public double getRouteAvgDegree() {
         return routeAvgDegree;
     }
 
-    public void setRouteAvgDegree(Integer routeAvgDegree) {
+    public void setRouteAvgDegree(double routeAvgDegree) {
         this.routeAvgDegree = routeAvgDegree;
     }
 
-    public Integer getRouteMaxAltitude() {
+    public double getRouteMaxAltitude() {
         return routeMaxAltitude;
     }
 
-    public void setRouteMaxAltitude(Integer routeMaxAltitude) {
+    public void setRouteMaxAltitude(double routeMaxAltitude) {
         this.routeMaxAltitude = routeMaxAltitude;
     }
 
-    public Integer getRouteMinAltitude() {
+    public double getRouteMinAltitude() {
         return routeMinAltitude;
     }
 
-    public void setRouteMinAltitude(Integer routeMinAltitude) {
+    public void setRouteMinAltitude(double routeMinAltitude) {
         this.routeMinAltitude = routeMinAltitude;
     }
 

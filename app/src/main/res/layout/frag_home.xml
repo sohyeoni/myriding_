@@ -48,38 +48,17 @@
                 app:layout_constraintTop_toTopOf="parent"/>
 
             <TextView
-                android:id="@+id/post_start_point"
-                android:layout_width="wrap_content"
+                android:id="@+id/post_point"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="16dp"
                 android:text="Start Point"
                 android:textColor="#000000"
                 android:textSize="14sp"
-                android:layout_marginTop="4dp"
-                app:layout_constraintStart_toStartOf="@+id/post_title"
-                app:layout_constraintTop_toBottomOf="@+id/post_title" />
-
-            <TextView
-                android:id="@+id/post_point_wave"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="~"
-                android:textColor="#000000"
-                android:textSize="14sp"
-                android:layout_marginTop="4dp"
-                android:layout_marginLeft="8dp"
-                app:layout_constraintStart_toEndOf="@+id/post_start_point"
-                app:layout_constraintTop_toBottomOf="@+id/post_title" />
-
-            <TextView
-                android:id="@+id/post_end_point"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="End Point"
-                android:textColor="#000000"
-                android:textSize="14sp"
-                android:layout_marginTop="4dp"
-                android:layout_marginLeft="8dp"
-                app:layout_constraintStart_toEndOf="@+id/post_point_wave"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/post_title" />
 
             <TextView
@@ -89,8 +68,8 @@
                 android:text="거리"
                 android:textSize="12sp"
                 android:layout_marginTop="16dp"
-                app:layout_constraintStart_toStartOf="@+id/post_start_point"
-                app:layout_constraintTop_toBottomOf="@+id/post_start_point" />
+                app:layout_constraintStart_toStartOf="@+id/post_point"
+                app:layout_constraintTop_toBottomOf="@+id/post_point" />
 
             <TextView
                 android:id="@+id/post_distance"
@@ -193,6 +172,17 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/home_map" />
+
+            <TextView
+                android:id="@+id/home_page_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1 / 4"
+                android:textSize="16sp"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
 
             <TextView
                 android:id="@+id/btn_prev"

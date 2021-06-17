@@ -3,6 +3,7 @@ package com.myriding.activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -16,29 +17,23 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.myriding.R;
-import com.myriding.atapter.MyCourseAdapter;
 import com.myriding.http.RetrofitAPI;
 import com.myriding.http.RetrofitClient;
-import com.myriding.model.CourseData;
 import com.myriding.model.CourseDetailResponse;
-import com.myriding.model.CourseResponse;
 import com.myriding.model.RouteLikeResponse;
 import com.myriding.model.RouteMongoValue;
 import com.myriding.model.RouteValue;
-import com.myriding.model.Routes;
 import com.myriding.model.Token;
 
-import org.json.JSONObject;
-
-import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import retrofit2.Call;
@@ -48,12 +43,16 @@ import retrofit2.Response;
 public class CourseViewDetailActivity extends AppCompatActivity implements OnMapReadyCallback {
     final static String TAG = "CourseViewDetailActivity";
 
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZ");
+    SimpleDateFormat dateFormat2 = new SimpleDateFormat("yyyy-MM-dd");
+    DecimalFormat likeFormat = new DecimalFormat("#,###");
+
     GoogleMap mGoogleMap;
 
     Button btn_ridingStart;
     ToggleButton btn_like;
 
-    TextView tv_date, tv_courseName, tv_startPoint, tv_endPoint, tv_distance, tv_time, tv_like;
+    TextView tv_date, tv_courseName, tv_point, tv_distance, tv_time, tv_like;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,11 +61,13 @@ public class CourseViewDetailActivity extends AppCompatActivity implements OnMap
 
         tv_date = (TextView) findViewById(R.id.created_date_course_detail);
         tv_courseName = (TextView) findViewById(R.id.course_name_course_detail);
-        tv_startPoint = (TextView) findViewById(R.id.start_point_course_detail);
-        tv_endPoint = (TextView) findViewById(R.id.end_point_course_detail);
+        tv_point = (TextView) findViewById(R.id.point_course_detail);
         tv_distance = (TextView) findViewById(R.id.distance_course_detail);
         tv_time = (TextView) findViewById(R.id.prediction_time_course_detail);
         tv_like = (TextView) findViewById(R.id.like_number_course_detail);
+
+        tv_point.setSingleLine(true);
+        tv_point.setEllipsize(TextUtils.TruncateAt.END);
 
         // SupportMapFragment를 통해 레이아웃에 만든 fragment의 ID를 참조하고 구글맵 호출
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_course_detail);
@@ -142,13 +143,12 @@ public class CourseViewDetailActivity extends AppCompatActivity implements OnMap
 
     void setCourseInfo(List<RouteValue> infos) {
         for(RouteValue info : infos) {
-            tv_date.setText(info.getCreatedAt());
+            tv_date.setText(info.getCreatedAt().substring(0, 10));
             tv_courseName.setText(info.getRouteTitle());
-            tv_startPoint.setText(info.getRouteStartPointAddress());
-            tv_endPoint.setText(info.getRouteEndPointAddress());
-            tv_distance.setText(info.getRouteDistance() + "km");
+            tv_point.setText(info.getRouteStartPointAddress() + " ~ " + info.getRouteEndPointAddress());
+            tv_distance.setText(String.format("%.2f", info.getRouteDistance()) + "km");
             tv_time.setText(info.getRouteTime() + "분");
-            tv_like.setText(info.getRouteLike() + "");
+            tv_like.setText(likeFormat.format(info.getRouteLike()) + "");
         }
     }
 

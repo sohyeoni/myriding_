@@ -1,2 +1,3 @@
 /build
 /src/main/java/com/myriding/http/ServerURL.java
+/src/main/java/com/myriding/http/WeatherApiKey.java

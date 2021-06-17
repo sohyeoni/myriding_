@@ -45,6 +45,9 @@ public class RankRecyclerViewAdapter extends RecyclerView.Adapter<RankRecyclerVi
     List<Rank> mData;
     Dialog myDialog;
 
+    TextView tv_profileRankName, tv_profileRankScore, tv_profileRankDistance, tv_profileRankTime, tv_profileRankAvgSpd, tv_profileRankMaxSpd;
+    ImageView img_profileRankImg;
+
     public RankRecyclerViewAdapter(Context mContext, List<Rank> mData) {
         this.mContext = mContext;
         this.mData = mData;
@@ -60,6 +63,14 @@ public class RankRecyclerViewAdapter extends RecyclerView.Adapter<RankRecyclerVi
         myDialog = new Dialog(mContext);
         myDialog.setContentView(R.layout.rank_profile);
         myDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        tv_profileRankName = (TextView) myDialog.findViewById(R.id.profile_rank_name);
+        tv_profileRankScore = (TextView) myDialog.findViewById(R.id.profile_rank_score);
+        tv_profileRankDistance = (TextView) myDialog.findViewById(R.id.profile_rank_distance);
+        tv_profileRankTime = (TextView) myDialog.findViewById(R.id.profile_rank_time);
+        tv_profileRankAvgSpd = (TextView) myDialog.findViewById(R.id.profile_rank_avgSpd);
+        tv_profileRankMaxSpd = (TextView) myDialog.findViewById(R.id.profile_rank_maxSpd);
+        img_profileRankImg = (ImageView) myDialog.findViewById(R.id.profile_rank_img);
 
         vHolder.item_rank.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -79,7 +90,6 @@ public class RankRecyclerViewAdapter extends RecyclerView.Adapter<RankRecyclerVi
         holder.tv_number.setText(mData.get(position).getMyRankNum() + "");
         holder.tv_name.setText(mData.get(position).getNickname());
         holder.tv_score.setText(scoreFormat.format(mData.get(position).getScore()) + "점");
-//        holder.img.setImageResource(mData.get(position).getImg());
 
         try {
             String imgString = mData.get(position).getImg().substring(22);
@@ -159,21 +169,12 @@ public class RankRecyclerViewAdapter extends RecyclerView.Adapter<RankRecyclerVi
                             mData.get(vHolder.getAdapterPosition()).setMaxSpeed(rankData.getMaxSpeed());
                     }
 
-                    TextView tv_profileRankName = (TextView) myDialog.findViewById(R.id.profile_rank_name);
-                    TextView tv_profileRankScore = (TextView) myDialog.findViewById(R.id.profile_rank_score);
-                    TextView tv_profileRankDistance = (TextView) myDialog.findViewById(R.id.profile_rank_distance);
-                    TextView tv_profileRankTime = (TextView) myDialog.findViewById(R.id.profile_rank_time);
-                    TextView tv_profileRankAvgSpd = (TextView) myDialog.findViewById(R.id.profile_rank_avgSpd);
-                    TextView tv_profileRankMaxSpd = (TextView) myDialog.findViewById(R.id.profile_rank_maxSpd);
-                    ImageView img_profileRankImg = (ImageView) myDialog.findViewById(R.id.profile_rank_img);
-
                     tv_profileRankName.setText(mData.get(vHolder.getAdapterPosition()).getNickname());
-                    tv_profileRankScore.setText(mData.get(vHolder.getAdapterPosition()).getScore() + "");
-                    // tv_profileRankImg.setImageBitmap(mData.get(vHolder.getAdapterPosition()).getImg());
-                    tv_profileRankDistance.setText(mData.get(vHolder.getAdapterPosition()).getDistance() + "");
-                    tv_profileRankTime.setText(mData.get(vHolder.getAdapterPosition()).getTime() + "");
-                    tv_profileRankAvgSpd.setText(mData.get(vHolder.getAdapterPosition()).getAvgSpeed() + "");
-                    tv_profileRankMaxSpd.setText(mData.get(vHolder.getAdapterPosition()).getMaxSpeed() + "");
+                    tv_profileRankScore.setText(scoreFormat.format(mData.get(vHolder.getAdapterPosition()).getScore()) + "점");
+                    tv_profileRankDistance.setText(String.format("%.2f", mData.get(vHolder.getAdapterPosition()).getDistance()) + "km");
+                    tv_profileRankTime.setText(mData.get(vHolder.getAdapterPosition()).getTime() + "분");
+                    tv_profileRankAvgSpd.setText(String.format("%.2f", mData.get(vHolder.getAdapterPosition()).getAvgSpeed()) + "km/h");
+                    tv_profileRankMaxSpd.setText(String.format("%.2f", mData.get(vHolder.getAdapterPosition()).getMaxSpeed()) + "km/h");
 
                     /* image decode */
                     try {

@@ -30,6 +30,19 @@
         app:layout_constraintTop_toBottomOf="@+id/created_date_course_detail" />
 
     <TextView
+        android:id="@+id/point_course_detail"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="16dp"
+        android:text="Start Point"
+        android:textColor="@android:color/black"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/course_name_course_detail"
+        app:layout_constraintTop_toBottomOf="@+id/course_name_course_detail" />
+
+    <!--<TextView
         android:id="@+id/start_point_course_detail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -62,7 +75,7 @@
         android:textColor="@android:color/black"
         android:textSize="14sp"
         app:layout_constraintStart_toEndOf="@+id/wave"
-        app:layout_constraintTop_toBottomOf="@+id/course_name_course_detail" />
+        app:layout_constraintTop_toBottomOf="@+id/course_name_course_detail" />-->
 
     <TextView
         android:id="@+id/distance_title_course_detail"
@@ -74,7 +87,7 @@
         android:textColor="@android:color/black"
         android:textSize="14sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/start_point_course_detail" />
+        app:layout_constraintTop_toBottomOf="@+id/point_course_detail" />
 
     <TextView
         android:id="@+id/distance_course_detail"
@@ -86,7 +99,7 @@
         android:textColor="@android:color/black"
         android:textSize="14sp"
         app:layout_constraintStart_toEndOf="@+id/distance_title_course_detail"
-        app:layout_constraintTop_toBottomOf="@+id/end_point_course_detail" />
+        app:layout_constraintTop_toBottomOf="@+id/point_course_detail" />
 
     <TextView
         android:id="@+id/prediction_time_title_course_detail"

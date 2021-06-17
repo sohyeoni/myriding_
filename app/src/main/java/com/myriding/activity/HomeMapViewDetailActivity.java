@@ -97,15 +97,10 @@ public class HomeMapViewDetailActivity extends AppCompatActivity implements OnMa
             arrayPoints.add(new LatLng(route.getLat(), route.getLng()));
         }
 
-        int center = (int) (routes.size() / 2);
-        LatLng latLng = new LatLng(routes.get(center).getLat(), routes.get(center).getLng());
-
+        polylineOptions = new PolylineOptions();
         polylineOptions.color(Color.RED);
-        polylineOptions.width(10);
+        polylineOptions.width(20);
         polylineOptions.addAll(arrayPoints);
-
-        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
-        mGoogleMap.addPolyline(polylineOptions);
 
         // 경로의 중간지점을 중심으로 카메라 줌
         LatLng startPosition = new LatLng(
@@ -114,13 +109,26 @@ public class HomeMapViewDetailActivity extends AppCompatActivity implements OnMa
 
         int size = arrayPoints.size();
         LatLng endPosition = new LatLng(
-                arrayPoints.get(size - 1).latitude, arrayPoints.get(size - 1).longitude
+                arrayPoints.get(size - 1).latitude,
+                arrayPoints.get(size - 1).longitude
         );
 
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         builder.include(startPosition).include(endPosition);
+
+        if(arrayPoints.size() > 4) {
+            int offset = (int) (arrayPoints.size() / 4);
+
+            LatLng secondPosition = new LatLng(
+                    arrayPoints.get(offset).latitude, arrayPoints.get(offset).longitude
+            );
+            LatLng thirdPosition = new LatLng(
+                    arrayPoints.get(offset*2).latitude, arrayPoints.get(offset*2).longitude
+            );
+            builder.include(secondPosition).include(thirdPosition);
+        }
         LatLngBounds bounds = builder.build();
-        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(bounds.getCenter(), 16));
+        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 350));
         mGoogleMap.addPolyline(polylineOptions);
     }
 }

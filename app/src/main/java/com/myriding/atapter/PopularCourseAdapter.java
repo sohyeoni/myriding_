@@ -60,9 +60,8 @@ public class PopularCourseAdapter extends RecyclerView.Adapter<PopularCourseAdap
     @Override
     public void onBindViewHolder(@NonNull PopularCourseAdapter.MyViewHolder holder, int position) {
         holder.tv_title.setText(mData.get(position).getTitle());
-        holder.tv_distance.setText(mData.get(position).getDistance() + "km");
+        holder.tv_distance.setText(String.format("%.2f", mData.get(position).getDistance()) + "km");
         holder.tv_like.setText(likeFormat.format(mData.get(position).getLike()));
-//        holder.img.setImageResource(mData.get(position).getImg());
 
         String imgString = mData.get(position).getImg().substring(22);
         byte[] imageBytes = Base64.decode(imgString, Base64.DEFAULT);

@@ -55,8 +55,12 @@ import com.myriding.CustomView;
 import com.myriding.R;
 import com.myriding.http.RetrofitAPI;
 import com.myriding.http.RetrofitClient;
+import com.myriding.http.RetrofitWeather;
+import com.myriding.http.WeatherAPI;
+import com.myriding.http.WeatherApiKey;
 import com.myriding.model.Record;
 import com.myriding.model.Token;
+import com.myriding.model.Weather;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -115,7 +119,7 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
     private TextView tv_recMaxSpeed;
     private TextView tv_sensorValue;
     private TextView tv_recAvgSpeed;
-
+    private TextView tv_currentLocation, tv_currentTemp, tv_currentWind;
     private CustomView customView;
 
     Location lastLocation = null;
@@ -148,6 +152,10 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
             public void onMapReady(GoogleMap googleMap) {
                 map = googleMap;
                 map.setMyLocationEnabled(true);
+
+                Location location = manager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 17));
+                getWeather(location.getLatitude(), location.getLongitude());
             }
         });
 
@@ -216,6 +224,10 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
         tv_recAvgSpeed = (TextView) findViewById(R.id.riding_speed_avg_time);
         // tv_sensorValue = (TextView) findViewById(R.id.sensor_value);
         customView = (CustomView) findViewById(R.id.customView);
+
+        tv_currentLocation = (TextView) findViewById(R.id.riding_current_location);
+        tv_currentTemp = (TextView) findViewById(R.id.riding_current_weather);
+        tv_currentWind = (TextView) findViewById(R.id.riding_current_wind);
     }
 
     private GoogleMap map;
@@ -258,6 +270,8 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
                 double longitude = location.getLongitude();
 
                 String message = "최근위치 " + latitude + ", " + longitude;
+                currentLocationAddress = getCurrentAddress(latitude, longitude);
+
                 Log.d(TAG, message);
             }
             /*gpsListener = new GPSListener();
@@ -295,7 +309,7 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
                 String[] address = list.get(0).getAddressLine(0).split(" ");
                 currentLocationAddress = address[1] + " " + address[2] + " " + address[3];
                 // currentLocationAddress = list.get(0).getAdminArea() + " " + list.get(0).getLocality() + " " + list.get(0).getThoroughfare();
-                Log.d( TAG, currentLocationAddress);
+                // Log.d(TAG, currentLocationAddress);
             }
         }
 
@@ -315,18 +329,21 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
         public void onLocationChanged(@NonNull Location location) {
             double latitude = location.getLatitude();
             double longitude = location.getLongitude();
-            String message = "내 위치 " + latitude + ", " + longitude;
-            Log.d(TAG, message);
+            // String message = "내 위치 " + latitude + ", " + longitude;
+            // Log.d(TAG, message);
 
             currentLocationAddress = getCurrentAddress(latitude, longitude);
             if(startPointAddress == null) {
                 startPointAddress = currentLocationAddress;
-                Log.d(TAG + "[Address] : ", startPointAddress);
+                Log.d(TAG + "Start", startPointAddress);
             } else {
                 endPointAddress = currentLocationAddress;
-                Log.d(TAG + "[Address] : ", endPointAddress);
+                Log.d(TAG + "End", endPointAddress);
             }
             showCurrentLocation(latitude, longitude);
+
+            if(lastLocation != null && totalTime % 300 == 0)
+                getWeather(latitude, longitude);
 
             if(isRiding) {
                 if(lastLocation != null) {
@@ -370,7 +387,9 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
             LatLng curPoint = new LatLng(latitude, longitude);
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(curPoint, 17));
 
-            if(lastLocation != null && isRiding && totalTime % 5 == 0)
+            int updateTime = totalTime;
+
+            if(lastLocation != null && isRiding && updateTime % 5 == 0)
                 drawDirections(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()), curPoint);
         }
 
@@ -516,12 +535,7 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
 
     // TODO: 거리와 시간 확인 후 저장 dialog 또는 삭제 / 종료 dialog
     public void clickStop(View view) {
-        if(myRecords.size() > 0 && (totalTime / 60) < 1) {
-            endDialog();
-        } else {
-            // 추가한 것
-            showRecordingMore();
-        }
+        endDialog();
     }
 
     public void clickLeftSignal(View view) {
@@ -629,6 +643,11 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
             tv_recMaxSpeed.setText(String.format("%.1f", maxSpeed));
             tv_recAvgSpeed.setText(String.format("%.1f", avgSpeedTemp));
 
+            tv_currentLocation.setText(currentLocationAddress);
+            tv_currentTemp.setText(String.format("%.0f", currentTemp) + "℃");
+            tv_currentWind.setText("풍속 " + String.format("%.0f", currentWindSpeed) + "m/s");
+            // tv_currentWind.setText(parseDegree(currentWindDeg) + " " + currentWindSpeed + "m/s");
+
             // 후방 연결 변경사항
             if(isUseBackPhone) {
                 thread = new Thread() {
@@ -647,15 +666,7 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
                 thread.start();
             }
 
-            /*if(showGraphics) {
-                // setContentView(new CustomView(RidingActivity.this, secs, (secs + 1), (13 - secs)));
-                customView.senValue1 = secs;
-                customView.senValue2 = (secs + 1);
-                customView.senValue3 = (13 - secs);
-                customView.invalidate();
-            }*/
 
-            // tv_sensorValue.setText(sensorValue);
         }
     }
 
@@ -959,7 +970,7 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
             @Override
             public void onResponse(Call<JSONObject> call, Response<JSONObject> response) {
                 if(response.isSuccessful()) {
-                    Toast.makeText(RidingActivity.this, "라이딩 경로 저장 성공", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RidingActivity.this, "라이딩 경로 저장", Toast.LENGTH_SHORT).show();
 
                     thread = new Thread() {
                         public void run() {
@@ -988,5 +999,51 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
                 Log.d(TAG, t.getMessage());
             }
         });
+    }
+
+    private double currentTemp = 0, currentWindSpeed = 0, currentWindDeg = 0;
+    private WeatherAPI weatherAPI;
+    private void getWeather(double lat, double lng) {
+        weatherAPI = RetrofitWeather.getWeatherApiService();
+
+        Call<Weather> call = weatherAPI.getWeather(lat, lng, WeatherApiKey.getWeatherKey(), "metric");
+        call.enqueue(new Callback<Weather>() {
+            @Override
+            public void onResponse(Call<Weather> call, Response<Weather> response) {
+                if(response.isSuccessful()) {
+                    // Toast.makeText(RidingActivity.this, "날씨 정보 획득", Toast.LENGTH_SHORT).show();
+                    currentTemp = response.body().getMain().getTemp();
+                    currentWindSpeed = response.body().getWind().getSpeed();
+                    currentWindDeg = response.body().getWind().getSpeed();
+                } else {
+                    // Toast.makeText(RidingActivity.this, "날씨 정보 획득 실패", Toast.LENGTH_SHORT).show();
+                    try {
+                        Log.d(TAG, response.errorBody().string());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Weather> call, Throwable t) {
+                // Toast.makeText(RidingActivity.this, "날씨 정보 획득 실패2", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, t.getMessage());
+            }
+        });
+    }
+
+    private String parseDegree(double degree) {
+        String[] sectors = new String[]{ "북", "북동", "동", "남동", "남", "남서", "서", "북서" };
+
+        degree += 22.5;
+
+        if (degree < 0)
+            degree = 360 - Math.abs(degree) % 360;
+        else
+            degree = degree % 360;
+
+        int which = (int)(degree / 45);
+        return sectors[which];
     }
 }

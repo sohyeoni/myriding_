@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -63,13 +64,15 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<SearchRecycl
 
         holder.img_course.setImageBitmap(decodedImage);
         holder.tv_courseName.setText(mData.get(position).getCourseName());
-        holder.tv_courseDistance.setText(String.format("%.1f km", mData.get(position).getCourseDistance()));
-        holder.tv_courseTime.setText(mData.get(position).getCourseTime() + "");
+        holder.tv_courseDistance.setText(String.format("%.2f km", mData.get(position).getCourseDistance()));
+        holder.tv_courseTime.setText(mData.get(position).getCourseTime() + "분");
         holder.tv_courseLike.setText(likeFormat.format(mData.get(position).getCourseLike()));
         holder.tv_courseCreatedDate.setText(dateFormat.format(mData.get(position).getDate()));
-        holder.tv_courseStartPoint.setText(mData.get(position).getStartPoint());
-        holder.tv_courseEndPoint.setText(mData.get(position).getEndPoint());
+        holder.tv_coursePoint.setText(mData.get(position).getStartPoint() + " ~ " + mData.get(position).getEndPoint());
         holder.tv_courseTryCount.setText(likeFormat.format(mData.get(position).getTryCount()) + "명이 라이딩했어요!");
+
+        holder.tv_coursePoint.setSingleLine(true);
+        holder.tv_coursePoint.setEllipsize(TextUtils.TruncateAt.END);
     }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
@@ -81,8 +84,7 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<SearchRecycl
         private TextView tv_courseTime;
         private TextView tv_courseLike;
         private TextView tv_courseCreatedDate;
-        private TextView tv_courseStartPoint;
-        private TextView tv_courseEndPoint;
+        private TextView tv_coursePoint;
         private TextView tv_courseTryCount;
 
         public MyViewHolder(@NonNull View itemView) {
@@ -95,8 +97,7 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<SearchRecycl
             tv_courseTime        = (TextView) itemView.findViewById(R.id.search_course_time);
             tv_courseLike        = (TextView) itemView.findViewById(R.id.search_course_like);
             tv_courseCreatedDate = (TextView) itemView.findViewById(R.id.search_course_date);
-            tv_courseStartPoint  = (TextView) itemView.findViewById(R.id.search_course_start_point);
-            tv_courseEndPoint    = (TextView) itemView.findViewById(R.id.search_course_end_point);
+            tv_coursePoint       = (TextView) itemView.findViewById(R.id.search_course_point);
             tv_courseTryCount    = (TextView) itemView.findViewById(R.id.search_course_try_num);
         }
     }
