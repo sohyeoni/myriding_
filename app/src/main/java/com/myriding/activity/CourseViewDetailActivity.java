@@ -2,17 +2,20 @@ package com.myriding.activity;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.Image;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -53,6 +56,7 @@ public class CourseViewDetailActivity extends AppCompatActivity implements OnMap
     ToggleButton btn_like;
 
     TextView tv_date, tv_courseName, tv_point, tv_distance, tv_time, tv_like;
+    ImageView img_loading;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +72,9 @@ public class CourseViewDetailActivity extends AppCompatActivity implements OnMap
 
         tv_point.setSingleLine(true);
         tv_point.setEllipsize(TextUtils.TruncateAt.END);
+
+        img_loading = (ImageView) findViewById(R.id.course_detail_loading_image);
+        Glide.with(this).load(R.raw.gif_loading).into(img_loading);
 
         // SupportMapFragment를 통해 레이아웃에 만든 fragment의 ID를 참조하고 구글맵 호출
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_course_detail);
@@ -134,12 +141,17 @@ public class CourseViewDetailActivity extends AppCompatActivity implements OnMap
                 } else {
                     Toast.makeText(getApplicationContext(), "경로 상세정보 조회 실패", Toast.LENGTH_SHORT).show();
                 }
+
+                btn_ridingStart.setVisibility(View.VISIBLE);
+                img_loading.setVisibility(View.GONE);
             }
 
             @Override
             public void onFailure(Call<CourseDetailResponse> call, Throwable t) {
                 Toast.makeText(getApplicationContext(), "경로 상세정보 조회 실패", Toast.LENGTH_SHORT).show();
                 Log.d(TAG, t.getMessage());
+
+                img_loading.setVisibility(View.GONE);
             }
         });
     }
@@ -161,16 +173,6 @@ public class CourseViewDetailActivity extends AppCompatActivity implements OnMap
         for(RouteMongoValue route : routes) {
             arrayPoints.add(new LatLng(route.getLat(), route.getLng()));
         }
-
-        /*int center = (int) (routes.size() / 2);
-        LatLng latLng = new LatLng(routes.get(center).getLat(), routes.get(center).getLng());
-
-        polylineOptions.color(Color.RED);
-        polylineOptions.width(10);
-        polylineOptions.addAll(arrayPoints);
-
-        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
-        mGoogleMap.addPolyline(polylineOptions);*/
 
         polylineOptions.color(Color.RED);
         polylineOptions.width(10);

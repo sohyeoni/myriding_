@@ -149,10 +149,8 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
         Intent intent = getIntent();
         if(intent != null && intent.hasExtra("course_id")) {
             courseID = intent.getExtras().getInt("course_id");
-            // TODO 좌표 받아오기
         }
 
-        Log.d(TAG, "courseID = " + courseID);
         init();
 
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.riding_map);
@@ -186,12 +184,6 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
         // 후방 알림 사용여부 확인 후 연결 작업 실시
         showUseBackPhone();
 
-        /*new Thread(new Runnable() {
-            @Override
-            public void run() {
-                getBackOjbectDistance();
-            }
-        }).start();*/
 
         if(isUseBackPhone) {
             graphicHandler = new Handler();
