@@ -113,6 +113,7 @@ public interface RetrofitAPI {
             @Field("rec_end_point_address") String rec_end_point_address,
             @Field("rec_avg_speed") double rec_avg_speed,
             @Field("rec_max_speed") double rec_max_speed,
+            @Field("rec_route_id") Integer rec_route_id,
             @Field("records") JSONArray record
     );
 

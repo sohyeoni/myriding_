@@ -63,13 +63,19 @@
                     android:textColor="@android:color/black"
                     android:textStyle="bold"/>
 
+                <ImageView
+                    android:id="@+id/course_pop_loading_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="280dp" />
+
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/popularCourse_recyclerView"
                     android:layout_width="match_parent"
                     android:layout_height="280dp"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="8dp"
-                    android:overScrollMode="never"/>
+                    android:overScrollMode="never"
+                    android:visibility="gone"/>
             </LinearLayout>
 
             <LinearLayout
@@ -104,13 +110,19 @@
                         tools:ignore="RtlCompat" />
                 </LinearLayout>
 
+                <ImageView
+                    android:id="@+id/course_my_loading_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="280dp" />
+
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/myCourse_recyclerView"
                     android:layout_width="match_parent"
                     android:layout_height="550dp"
                     android:overScrollMode="never"
                     android:paddingHorizontal="16dp"
-                    android:paddingVertical="8dp" />
+                    android:paddingVertical="8dp"
+                    android:visibility="gone"/>
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

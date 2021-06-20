@@ -119,6 +119,11 @@
                 android:layout_weight="1"/>
         </RadioGroup>
 
+        <ImageView
+            android:id="@+id/search_loading_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
         <!--  post xml  -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/search_recyclerview"

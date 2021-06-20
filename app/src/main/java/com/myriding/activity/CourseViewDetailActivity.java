@@ -75,6 +75,8 @@ public class CourseViewDetailActivity extends AppCompatActivity implements OnMap
 
         Intent intent = getIntent();
         int courseID = intent.getExtras().getInt("post_id");
+        String courseName = intent.getStringExtra("post_name");
+        tv_courseName.setText(courseName);
 
         getDetailCourse(courseID);
 
@@ -83,6 +85,7 @@ public class CourseViewDetailActivity extends AppCompatActivity implements OnMap
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getApplicationContext(), RidingActivity.class);
+                intent.putExtra("course_id", courseID);
                 startActivity(intent);
             }
         });
@@ -119,7 +122,7 @@ public class CourseViewDetailActivity extends AppCompatActivity implements OnMap
             @Override
             public void onResponse(Call<CourseDetailResponse> call, Response<CourseDetailResponse> response) {
                 if(response.isSuccessful()) {
-                    Toast.makeText(getApplicationContext(), "경로 상세 정보 조회 성공", Toast.LENGTH_SHORT).show();
+                    // Toast.makeText(getApplicationContext(), "경로 상세 정보 조회 성공", Toast.LENGTH_SHORT).show();
                     List<RouteValue> courseDetail = response.body().getRoutes().getRouteValue();
                     List<RouteMongoValue> routeValues = response.body().getRoutes().getRouteMongoValue();
 
@@ -129,13 +132,13 @@ public class CourseViewDetailActivity extends AppCompatActivity implements OnMap
                     boolean likeStatus =  response.body().getRoutes().getRouteLikeStatus() == 1 ? true : false;
                     btn_like.setChecked(likeStatus);
                 } else {
-                    Toast.makeText(getApplicationContext(), "경로 상세 정보 조회 실패1", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "경로 상세정보 조회 실패", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<CourseDetailResponse> call, Throwable t) {
-                Toast.makeText(getApplicationContext(), "경로 상세 정보 조회 실패2", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "경로 상세정보 조회 실패", Toast.LENGTH_SHORT).show();
                 Log.d(TAG, t.getMessage());
             }
         });

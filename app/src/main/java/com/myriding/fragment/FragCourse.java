@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -15,6 +16,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.myriding.R;
 import com.myriding.activity.MyCourseMoreActivity;
 import com.myriding.activity.SearchActivity;
@@ -43,6 +45,7 @@ public class FragCourse extends Fragment {
 
     private TextView btn_more;
     private TextView btn_search;
+    private ImageView img_popLoading, img_myLoading;
 
     private RecyclerView popualrRecyclerView;
     private PopularCourseAdapter popularCourseAdapter;
@@ -56,6 +59,11 @@ public class FragCourse extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.frag_course, container, false);
+
+        img_popLoading = (ImageView) view.findViewById(R.id.course_pop_loading_image);
+        img_myLoading = (ImageView) view.findViewById(R.id.course_my_loading_image);
+        Glide.with(this).load(R.raw.gif_loading).into(img_popLoading);
+        Glide.with(this).load(R.raw.gif_loading).into(img_myLoading);
 
         /* Search Bar 클릭 이벤트 (SearchActivity로 화면 전환) */
         btn_search = (TextView) view.findViewById(R.id.course_search_btn);
@@ -127,14 +135,25 @@ public class FragCourse extends Fragment {
                         e.printStackTrace();
                     }
                 }
+
+                img_popLoading.setVisibility(view.GONE);
+                popualrRecyclerView.setVisibility(view.VISIBLE);
             }
 
             @Override
             public void onFailure(Call<CourseResponse> call, Throwable t) {
-                Toast.makeText(getContext(), "통신 실패", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "인기 코스 조회 실패", Toast.LENGTH_SHORT).show();
                 Log.d(TAG, t.getMessage());
+
+                img_popLoading.setVisibility(view.GONE);
+                popualrRecyclerView.setVisibility(view.VISIBLE);
             }
         });
+
+        /*isCompletePopular = true;
+        if(isCompletePopular && isCompleteMy) {
+            img_laoding.setVisibility(View.GONE);
+        }*/
     }
 
     /* 내 라이딩 코스 획득 메서드 */
@@ -146,7 +165,7 @@ public class FragCourse extends Fragment {
             @Override
             public void onResponse(Call<CourseResponse> call, Response<CourseResponse> response) {
                 if(response.isSuccessful()) {
-                    Toast.makeText(getContext(), "내 라이딩 경로 조회 성공", Toast.LENGTH_SHORT).show();
+                    // Toast.makeText(getContext(), "내 라이딩 경로 조회 성공", Toast.LENGTH_SHORT).show();
 
                     List<CourseData> myRoute = response.body().getRoutes();
                     setMyCourseList(myRoute);
@@ -157,14 +176,25 @@ public class FragCourse extends Fragment {
                     Toast.makeText(getContext(), "내 라이딩 경로 조회 실패", Toast.LENGTH_SHORT).show();
                     Log.d(TAG, response.body() + "");
                 }
+
+                img_myLoading.setVisibility(view.GONE);
+                myCourseRecyclerView.setVisibility(view.VISIBLE);
             }
 
             @Override
             public void onFailure(Call<CourseResponse> call, Throwable t) {
-                Toast.makeText(getContext(), "서버 통신 실패", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "내 라이딩 경로 조회 실패", Toast.LENGTH_SHORT).show();
                 Log.d(TAG, t.getMessage());
+
+                img_myLoading.setVisibility(view.GONE);
+                myCourseRecyclerView.setVisibility(view.VISIBLE);
             }
         });
+
+        /*isCompleteMy = true;
+        if(isCompletePopular && isCompleteMy) {
+            img_laoding.setVisibility(View.GONE);
+        }*/
     }
 
     /* 리사이클러뷰에 표시를 위해 획득한 인기 라이딩 정보를 리스트에 저장 */

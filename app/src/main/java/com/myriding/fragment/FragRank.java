@@ -1,10 +1,12 @@
 package com.myriding.fragment;
 
+import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -13,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.myriding.R;
@@ -40,6 +43,8 @@ public class FragRank extends Fragment {
     private RankRecyclerViewAdapter recyclerAdapter;
     private List<Rank> lstRank;
 
+    private ImageView img_loading;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -47,6 +52,9 @@ public class FragRank extends Fragment {
 
         myrecyclerview = (RecyclerView) view.findViewById(R.id.rank_recyclerview);
         myrecyclerview.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        img_loading = (ImageView) view.findViewById(R.id.rank_loading_image);
+        Glide.with(this).load(R.raw.gif_loading).into(img_loading);
 
         return view;
     }
@@ -69,7 +77,7 @@ public class FragRank extends Fragment {
             @Override
             public void onResponse(Call<RankResponse> call, Response<RankResponse> response) {
                 if(response.isSuccessful()) {
-                    Toast.makeText(getContext(), "랭킹 획득 성공", Toast.LENGTH_SHORT).show();
+                    // Toast.makeText(getContext(), "랭킹 획득 성공", Toast.LENGTH_SHORT).show();
                     List<RankData> rankData = response.body().getRanks();
 
                     if(rankData != null) setRankList(rankData);
@@ -98,10 +106,18 @@ public class FragRank extends Fragment {
             @Override
             public void onResponse(Call<RankResponse> call, Response<RankResponse> response) {
                 if(response.isSuccessful()) {
-                    Toast.makeText(getContext(), "랭킹 이미지 획득 성공", Toast.LENGTH_SHORT).show();
+                    // Toast.makeText(getContext(), "랭킹 이미지 획득 성공", Toast.LENGTH_SHORT).show();
 
-                    Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                    Log.d(TAG, gson.toJson(response.body()));
+//                    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+//                    Log.d(TAG, gson.toJson(response.body()));
+                    List<RankData> ranks = response.body().getRanks();
+                    for(int i = 0; i < ranks.size(); i++) {
+                        lstRank.get(i).setImg(ranks.get(i).getPicture());
+                    }
+
+                    recyclerAdapter.notifyDataSetChanged();
+
+                    img_loading.setVisibility(View.GONE);
                 } else {
                     Toast.makeText(getContext(), "랭킹 이미지 획득 실패", Toast.LENGTH_SHORT).show();
                 }

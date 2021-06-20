@@ -2,12 +2,15 @@ package com.myriding.activity;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.myriding.R;
 import com.myriding.atapter.MyCourseAdapter;
 import com.myriding.http.RetrofitAPI;
@@ -31,10 +34,15 @@ public class MyCourseMoreActivity extends AppCompatActivity {
     private MyCourseAdapter recyclerAdapter;
     private List<MyCourse> lstMyCourse = new ArrayList<>();
 
+    private ImageView img_loading;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_course_more);
+
+        img_loading = (ImageView) findViewById(R.id.my_course_more_loading);
+        Glide.with(this).load(R.raw.gif_loading).into(img_loading);
 
         myRecyclerview = (RecyclerView) findViewById(R.id.my_course_more_recyclerview);
         myRecyclerview.setLayoutManager(new LinearLayoutManager(this));
@@ -52,7 +60,7 @@ public class MyCourseMoreActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<CourseResponse> call, Response<CourseResponse> response) {
                 if(response.isSuccessful()) {
-                    Toast.makeText(getApplicationContext(), "내 라이딩 경로 전체 조회 성공", Toast.LENGTH_SHORT).show();
+                    // Toast.makeText(getApplicationContext(), "내 라이딩 경로 전체 조회 성공", Toast.LENGTH_SHORT).show();
 
                     List<CourseData> myRoute = response.body().getRoutes();
                     setMyCourseList(myRoute);
@@ -62,12 +70,16 @@ public class MyCourseMoreActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(getApplicationContext(), "내 라이딩 경로 전체 조회 실패", Toast.LENGTH_SHORT).show();
                 }
+
+                img_loading.setVisibility(View.GONE);
             }
 
             @Override
             public void onFailure(Call<CourseResponse> call, Throwable t) {
-                Toast.makeText(getApplicationContext(), "서버 통신 실패", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "내 라이딩 경로 전체 조회 실패", Toast.LENGTH_SHORT).show();
                 Log.d(TAG, t.getMessage());
+
+                img_loading.setVisibility(View.GONE);
             }
         });
     }

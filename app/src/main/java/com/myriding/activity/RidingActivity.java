@@ -136,13 +136,17 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
     Thread thread;
     private String sensorValue;
     Handler graphicHandler;
-
+    Integer courseID = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_riding);
 
+        Intent intent = getIntent();
+        if(intent != null && intent.hasExtra("course_id"))
+            courseID = intent.getExtras().getInt("course_id");
+
+        Log.d(TAG, "courseID = " + courseID);
         init();
 
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.riding_map);
@@ -153,8 +157,10 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
                 map = googleMap;
                 map.setMyLocationEnabled(true);
 
-                Location location = manager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                Location location = manager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                 map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 17));
+                currentLocationAddress = getCurrentAddress(location.getLatitude(), location.getLongitude());
+                tv_currentLocation.setText(currentLocationAddress);
                 getWeather(location.getLatitude(), location.getLongitude());
             }
         });
@@ -177,22 +183,24 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
             }
         }).start();*/
 
-        graphicHandler = new Handler();
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                getBackOjbectDistance();
-                graphicHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(showGraphics) {
-                            customView.invalidate();
+        if(isUseBackPhone) {
+            graphicHandler = new Handler();
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    getBackOjbectDistance();
+                    graphicHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (showGraphics) {
+                                customView.invalidate();
+                            }
                         }
-                    }
-                });
-            }
-        });
-        t.start();
+                    });
+                }
+            });
+            t.start();
+        }
     }
 
     void init() {
@@ -360,7 +368,7 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
 
                 // 평균 속도
                 avgSpeedTemp = 0.0;
-                if(totalTime > 0) {
+                if(totalTime > 0 && totalDistance > 0 && maxSpeed > 0) {
                     avgSpeedTemp = (totalDistance / totalTime) * 3.6;
                 }
 
@@ -516,17 +524,19 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
         pauseLinearLayout.setVisibility(View.VISIBLE);
         restartStopLinearLayout.setVisibility(View.GONE);
 
-        if(!isFirst) {
-            thread = new Thread() {
-                public void run() {
-                    //if(lastSignal == "S")
-                    Log.d(TAG, "START");
-                    sendSignaltoBackPhone("S");
-                }
-            };
-            thread.start();
-        } else {
-            isFirst = false;
+        if(isUseBackPhone) {
+            if (!isFirst) {
+                thread = new Thread() {
+                    public void run() {
+                        //if(lastSignal == "S")
+                        Log.d(TAG, "START");
+                        sendSignaltoBackPhone("S");
+                    }
+                };
+                thread.start();
+            } else {
+                isFirst = false;
+            }
         }
 
         if(isRiding == false)
@@ -713,13 +723,6 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
         dialog.show();
     }
 
-    // 추가한 것
-    private void showRecordingMore() {
-        final AlertDialog.Builder dialog = new AlertDialog.Builder(this );
-        dialog.setMessage("기록이 짧습니다. 더 기록해주세요");
-        dialog.show();
-    }
-
     /* 라이딩 기록에 따른 dialog 출력 메서드 */
     private void endDialog() {
         // TODO 후방에 종료 신호 주기 -> 후방에서는 블루투스 및 소켓 대기 종료 작업
@@ -757,8 +760,7 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
                 Log.d(TAG + "[RECORD] : ", distanceTemp + ", " + avgSpeedTemp + ", " + maxSpeed);
                 Log.d(TAG + "[RECORD] : ", (myRecordForJson instanceof JSONArray) ? "true" : "false");
 
-                // 경로가 없거나 1분 미만은 저장 안되록
-                setMyRecord(title, distanceTemp, time, startPointAddress, endPointAddress, avgSpeedTemp, maxSpeed, myRecordForJson);
+                setMyRecord(title, distanceTemp, time, startPointAddress, endPointAddress, avgSpeedTemp, maxSpeed, courseID, myRecordForJson);
 
                 dialogInterface.dismiss();
             }
@@ -961,23 +963,25 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
     /* 내 라이딩 코스 획득 메서드 */
     private RetrofitAPI retrofitAPI;
     private void setMyRecord(String title, double distance, int time, String startPoint, String endPoint,
-                             double avgSpeed, double maxSpeed, JSONArray records) {
+                             double avgSpeed, double maxSpeed, Integer routeID, JSONArray records) {
         retrofitAPI = RetrofitClient.getApiService();
 
         Call<JSONObject> call = retrofitAPI.setMyRecord(Token.getToken(), title, distance, time,
-                startPoint, endPoint, avgSpeed, maxSpeed, records);
+                startPoint, endPoint, avgSpeed, maxSpeed, routeID, records);
         call.enqueue(new Callback<JSONObject>() {
             @Override
             public void onResponse(Call<JSONObject> call, Response<JSONObject> response) {
                 if(response.isSuccessful()) {
                     Toast.makeText(RidingActivity.this, "라이딩 경로 저장", Toast.LENGTH_SHORT).show();
 
-                    thread = new Thread() {
-                        public void run() {
-                            sendSignaltoBackPhone("E");
-                        }
-                    };
-                    thread.start();
+                    if(isUseBackPhone) {
+                        thread = new Thread() {
+                            public void run() {
+                                sendSignaltoBackPhone("E");
+                            }
+                        };
+                        thread.start();
+                    }
 
                     timeThread.interrupt();
 

@@ -48,11 +48,13 @@ public class MyCourseAdapter extends RecyclerView.Adapter<MyCourseAdapter.MyView
             @Override
             public void onClick(View view) {
                 int postId = mData.get(vHolder.getAdapterPosition()).getId();
+                String postName = mData.get(vHolder.getAdapterPosition()).getTitle();
 //                Toast.makeText(mContext, "Click Popular " + postId, Toast.LENGTH_SHORT).show();
 
                 Intent intent = new Intent(view.getContext(), CourseViewDetailActivity.class);
                 intent.addFlags(intent.FLAG_ACTIVITY_NEW_TASK);
                 intent.putExtra("post_id", postId);
+                intent.putExtra("post_name", postName);
                 mContext.startActivity(intent);
             }
         });

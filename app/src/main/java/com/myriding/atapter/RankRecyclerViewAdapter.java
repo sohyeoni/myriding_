@@ -169,10 +169,13 @@ public class RankRecyclerViewAdapter extends RecyclerView.Adapter<RankRecyclerVi
                             mData.get(vHolder.getAdapterPosition()).setMaxSpeed(rankData.getMaxSpeed());
                     }
 
+
+
                     tv_profileRankName.setText(mData.get(vHolder.getAdapterPosition()).getNickname());
                     tv_profileRankScore.setText(scoreFormat.format(mData.get(vHolder.getAdapterPosition()).getScore()) + "점");
                     tv_profileRankDistance.setText(String.format("%.2f", mData.get(vHolder.getAdapterPosition()).getDistance()) + "km");
-                    tv_profileRankTime.setText(mData.get(vHolder.getAdapterPosition()).getTime() + "분");
+                    tv_profileRankTime.setText((mData.get(vHolder.getAdapterPosition()).getTime() / 60) + "시간"
+                                                + (mData.get(vHolder.getAdapterPosition()).getTime() % 60) + "분");
                     tv_profileRankAvgSpd.setText(String.format("%.2f", mData.get(vHolder.getAdapterPosition()).getAvgSpeed()) + "km/h");
                     tv_profileRankMaxSpd.setText(String.format("%.2f", mData.get(vHolder.getAdapterPosition()).getMaxSpeed()) + "km/h");
 

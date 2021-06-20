@@ -45,10 +45,12 @@ public class PopularCourseAdapter extends RecyclerView.Adapter<PopularCourseAdap
             @Override
             public void onClick(View view) {
                 int postID =  mData.get(vHolder.getAdapterPosition()).getId();
-                Toast.makeText(mContext, "Click Popular " + postID, Toast.LENGTH_SHORT).show();
+                String postName = mData.get(vHolder.getAdapterPosition()).getTitle();
+                // Toast.makeText(mContext, "Click Popular " + postID, Toast.LENGTH_SHORT).show();
 
                 Intent intent = new Intent(view.getContext(), CourseViewDetailActivity.class);
                 intent.putExtra("post_id", postID);
+                intent.putExtra("post_name", postName);
                 mContext.startActivity(intent);
             }
         });

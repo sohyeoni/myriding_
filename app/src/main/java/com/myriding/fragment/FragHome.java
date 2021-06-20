@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,6 +26,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -134,10 +136,11 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
             @Override
             public void onClick(View view) {
                 currentPost++;
-                if(lstHome.get(currentPost).getArrayPoints() == null)
+                if(lstHome.get(currentPost).getArrayPoints() == null) {
                     getRouteData(selectYear, selectMonth, selectDay, todayPostID[currentPost]);
-                else
+                }else {
                     setPost();
+                }
             }
         });
 
@@ -232,6 +235,7 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
                 selectYear = date.getYear();
                 selectMonth = date.getMonth() + 1;
                 selectDay = date.getDay();
+
                 getOnedayRecord(selectYear, selectMonth, selectDay);
             }
         });
@@ -400,7 +404,7 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
         if(lstHome.get(currentPost).getArrayPoints().size() > 0) {
             polylineOptions = new PolylineOptions();
             polylineOptions.color(Color.RED);
-            polylineOptions.width(20);
+            polylineOptions.width(12);
             polylineOptions.addAll(lstHome.get(currentPost).getArrayPoints());
 
             if (mMap != null) mMap.clear();

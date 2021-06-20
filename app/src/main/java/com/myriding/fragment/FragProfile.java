@@ -32,6 +32,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.XAxis;
@@ -85,7 +86,7 @@ public class FragProfile extends Fragment {
     private RadioButton rb_Left, rb_Right, rb_Center;
     private RadioGroup radioGroup;
 
-    private ImageView img_picture;
+    private ImageView img_picture, img_loading;
     private TextView tv_username, tv_score, tv_count;
 
     private LineChart chart;
@@ -114,6 +115,9 @@ public class FragProfile extends Fragment {
         tv_username = (TextView) view.findViewById(R.id.profile_name);
         tv_score = (TextView) view.findViewById(R.id.profile_score);
         tv_count = (TextView) view.findViewById(R.id.profile_count);
+
+        img_loading = (ImageView) view.findViewById(R.id.profile_loading_image);
+        Glide.with(this).load(R.raw.gif_loading).into(img_loading);
 
         img_picture = (ImageView) view.findViewById(R.id.profile_img);
         img_picture.setOnClickListener(new View.OnClickListener() {
@@ -233,6 +237,8 @@ public class FragProfile extends Fragment {
 
                         recyclerAdapter = new ProfileRecyclerViewAdapter(getContext(), lstBadge);
                         myrecyclerview.setAdapter(recyclerAdapter);
+
+                        img_loading.setVisibility(View.GONE);
                     }
                 } else {
                     try {

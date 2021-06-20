@@ -8,6 +8,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
@@ -16,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.myriding.R;
 import com.myriding.atapter.SearchRecyclerViewAdapter;
 import com.myriding.http.RetrofitAPI;
@@ -43,6 +45,7 @@ public class SearchActivity extends AppCompatActivity {
     final int SORT_RIDING_NUM = 5;
 
     private EditText et_keyword;
+    private ImageView img_loading;
 
     private RadioGroup sortRadioGroup;
     private RadioButton sortNew, sortLike, sortView, sortDistance, sortTime;
@@ -59,6 +62,8 @@ public class SearchActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
 
+        img_loading = (ImageView) findViewById(R.id.search_loading_image);
+
         et_keyword = (EditText) findViewById(R.id.search_keyword);
         et_keyword.setOnKeyListener(new View.OnKeyListener() {
             @Override
@@ -72,6 +77,7 @@ public class SearchActivity extends AppCompatActivity {
                     if(sortRadioGroup.getCheckedRadioButtonId() != R.id.sort_new) {
                         sortNew.toggle();
                     } else {
+                        Glide.with(getApplicationContext()).load(R.raw.gif_loading).into(img_loading);
                         getCourseSearchResult(searchWord, sortValue);
                     }
 
@@ -122,6 +128,7 @@ public class SearchActivity extends AppCompatActivity {
                 }
 
                 if(searchWord != "")
+                    img_loading.setVisibility(View.VISIBLE);
                     getCourseSearchResult(searchWord, sortValue);
             }
         });
@@ -160,19 +167,23 @@ public class SearchActivity extends AppCompatActivity {
                 } else {
                     try {
                         String errorBody = response.errorBody().string();
-                        Log.d(TAG, "라이딩 코스 검색 실패1");
+                        Log.d(TAG, "라이딩 코스 검색 실패");
                         Log.d(TAG, errorBody);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
+
+                img_loading.setVisibility(View.GONE);
             }
 
             @Override
             public void onFailure(Call<CourseResponse> call, Throwable t) {
                 t.getMessage();
-                Log.d(TAG, "라이딩 코스 검색 실패2");
-                Log.d(TAG + "[HTTP]", t.getMessage());
+                Log.d(TAG, "라이딩 코스 검색 실패");
+                Log.d(TAG, t.getMessage());
+
+                img_loading.setVisibility(View.GONE);
             }
         });
     }
