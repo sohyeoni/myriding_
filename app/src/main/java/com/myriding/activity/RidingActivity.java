@@ -44,6 +44,7 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -58,7 +59,10 @@ import com.myriding.http.RetrofitClient;
 import com.myriding.http.RetrofitWeather;
 import com.myriding.http.WeatherAPI;
 import com.myriding.http.WeatherApiKey;
+import com.myriding.model.CourseDetailResponse;
 import com.myriding.model.Record;
+import com.myriding.model.RouteMongoValue;
+import com.myriding.model.RouteValue;
 import com.myriding.model.Token;
 import com.myriding.model.Weather;
 
@@ -143,8 +147,10 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
         setContentView(R.layout.activity_riding);
 
         Intent intent = getIntent();
-        if(intent != null && intent.hasExtra("course_id"))
+        if(intent != null && intent.hasExtra("course_id")) {
             courseID = intent.getExtras().getInt("course_id");
+            // TODO 좌표 받아오기
+        }
 
         Log.d(TAG, "courseID = " + courseID);
         init();
@@ -162,6 +168,10 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
                 currentLocationAddress = getCurrentAddress(location.getLatitude(), location.getLongitude());
                 tv_currentLocation.setText(currentLocationAddress);
                 getWeather(location.getLatitude(), location.getLongitude());
+
+                if(courseID != null) {
+                    getDetailCourse(courseID);
+                }
             }
         });
 
@@ -397,7 +407,7 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
 
             int updateTime = totalTime;
 
-            if(lastLocation != null && isRiding && updateTime % 5 == 0)
+            if(lastLocation != null && isRiding && updateTime % 3 == 0)
                 drawDirections(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()), curPoint);
         }
 
@@ -413,25 +423,14 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
                         .geodesic(true);
                 polylines.add(map.addPolyline(polylineOptions));
             }
-            //mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(startPoint, 16));
 
-            SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
             Date dateTemp = new Date();
-            // dateFormat.format(dateTemp)
             myRecords.add(new Record(dateTemp, endPoint.latitude, endPoint.longitude, speedTemp));
-            /*String dateTemp2 = dateFormat.format(dateTemp);
-            try {
-                Date date = dateFormat.parse(dateTemp2);
-                Log.d(TAG + "[date] : ", date + "");
-                myRecords.add(new Record(date, endPoint.latitude, endPoint.longitude, speedTemp));
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }*/
 
-            for(Record myRecord : myRecords) {
+            /*for(Record myRecord : myRecords) {
                 Log.d(TAG + "[record]", myRecord.getDate2() + ", " + myRecord.getLat() + ", " + myRecord.getLng() + ", " + myRecord.getSpeed());
             }
-            Log.d(TAG + "[record]",  "----------------------");
+            Log.d(TAG + "[record]",  "----------------------");*/
         }
     }
 
@@ -1049,5 +1048,46 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
 
         int which = (int)(degree / 45);
         return sectors[which];
+    }
+
+    private void getDetailCourse(int id) {
+        retrofitAPI = RetrofitClient.getApiService();
+
+        Call<CourseDetailResponse> call = retrofitAPI.getDetailCourse(Token.getToken(), id);
+        call.enqueue(new Callback<CourseDetailResponse>() {
+            @Override
+            public void onResponse(Call<CourseDetailResponse> call, Response<CourseDetailResponse> response) {
+                if(response.isSuccessful()) {
+                    List<RouteMongoValue> routeValues = response.body().getRoutes().getRouteMongoValue();
+
+                    if(routeValues != null)     setRoutes(routeValues);
+                } else {
+                    Toast.makeText(getApplicationContext(), "경로 상세정보 조회 실패", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CourseDetailResponse> call, Throwable t) {
+                Toast.makeText(getApplicationContext(), "경로 상세정보 조회 실패", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, t.getMessage());
+            }
+        });
+    }
+
+    PolylineOptions naviPolylineOptions = new PolylineOptions();
+    ArrayList<LatLng> arrayPoints = new ArrayList<LatLng>();
+    void setRoutes(List<RouteMongoValue> routes) {
+        for(RouteMongoValue route : routes) {
+            arrayPoints.add(new LatLng(route.getLat(), route.getLng()));
+        }
+
+        naviPolylineOptions.color(Color.RED);
+        naviPolylineOptions.width(20);
+        naviPolylineOptions.addAll(arrayPoints);
+
+        LatLng startPosition = new LatLng(routes.get(0).getLat(), routes.get(0).getLng());
+
+        // map.animateCamera(CameraUpdateFactory.newLatLngZoom(startPosition, 15));
+        map.addPolyline(naviPolylineOptions);
     }
 }

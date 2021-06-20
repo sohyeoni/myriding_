@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.myriding.PreferenceManager;
 import com.myriding.R;
 import com.myriding.http.RetrofitAPI;
 import com.myriding.http.RetrofitClient;
@@ -59,6 +60,14 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        // 이전에 로그인 기록이 있을 경우, 자동 로그인
+        if(PreferenceManager.getString(getApplicationContext(), "user_id") != "" &&
+                PreferenceManager.getString(getApplicationContext(), "user_pwd") != "") {
+
+            requestLogin(PreferenceManager.getString(getApplicationContext(), "user_id"),
+                    PreferenceManager.getString(getApplicationContext(), "user_pwd"));
+        }
     }
 
     private RetrofitAPI retrofitAPI;
@@ -78,7 +87,12 @@ public class LoginActivity extends AppCompatActivity {
                     String token = response.body().getData().getToken();
                     Token.setToken("Bearer " + token);
 
-                    Toast.makeText(getApplicationContext(), "로그인에 성공하였습니다.", Toast.LENGTH_SHORT).show();
+                    // Toast.makeText(getApplicationContext(), "로그인에 성공하였습니다.", Toast.LENGTH_SHORT).show();
+
+                    // 로그인 유지를 위해 사용자 아이디와 비밀번호, 토큰 저장
+                    PreferenceManager.setString(getApplicationContext(), "user_id", user_account);
+                    PreferenceManager.setString(getApplicationContext(), "user_pwd", user_password);
+                    PreferenceManager.setString(getApplicationContext(), "user_token", "Bearer " + token);
 
                     Intent intent = new Intent(getApplicationContext(), BottomNavigationActivity.class);
                     startActivity(intent);
@@ -87,9 +101,6 @@ public class LoginActivity extends AppCompatActivity {
                         String errorBody = response.errorBody().string();
 
                         ErrorResponse errorResponse = new Gson().fromJson(errorBody, ErrorResponse.class);
-
-                        Log.d("HTTP", "error message : " + errorResponse.getMessage());
-                        Log.d("HTTP", "error message in data : " + errorResponse.getData().getMessage());
 
                         tv_errMsg.setText(errorResponse.getData().getMessage());
                         tv_errMsg.setVisibility(View.VISIBLE);

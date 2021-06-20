@@ -44,6 +44,9 @@ public interface RetrofitAPI {
     @POST("auth/login")
     Call<LoginResponse> login(@Body Login login);
 
+    @POST("auth/logout")
+    Call<JSONObject> logout(@Header("Authorization") String authToken);
+
     @GET("auth/profilemobile")
     Call<ProfileResponse> getProfile(
             @Header("Authorization") String authToke

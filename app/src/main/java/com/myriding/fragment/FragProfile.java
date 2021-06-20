@@ -41,8 +41,11 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.utils.EntryXComparator;
+import com.myriding.PreferenceManager;
 import com.myriding.R;
 import com.myriding.activity.BadgeHomeActivity;
+import com.myriding.activity.LoginActivity;
+import com.myriding.activity.SearchActivity;
 import com.myriding.atapter.ProfileRecyclerViewAdapter;
 import com.myriding.http.RetrofitAPI;
 import com.myriding.http.RetrofitClient;
@@ -87,7 +90,7 @@ public class FragProfile extends Fragment {
     private RadioGroup radioGroup;
 
     private ImageView img_picture, img_loading;
-    private TextView tv_username, tv_score, tv_count;
+    private TextView tv_username, tv_score, tv_count, btn_logout;
 
     private LineChart chart;
     List<Entry> distances = new ArrayList<>();
@@ -115,6 +118,14 @@ public class FragProfile extends Fragment {
         tv_username = (TextView) view.findViewById(R.id.profile_name);
         tv_score = (TextView) view.findViewById(R.id.profile_score);
         tv_count = (TextView) view.findViewById(R.id.profile_count);
+
+        btn_logout = (TextView) view.findViewById(R.id.btn_logout);
+        btn_logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                logout();
+            }
+        });
 
         img_loading = (ImageView) view.findViewById(R.id.profile_loading_image);
         Glide.with(this).load(R.raw.gif_loading).into(img_loading);
@@ -217,9 +228,6 @@ public class FragProfile extends Fragment {
             public void onResponse(Call<ProfileResponse> call, Response<ProfileResponse> response) {
                 if(response.isSuccessful()) {
                     Profile profile = response.body().getProfile();
-
-                    /*Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                    Log.d(TAG, gson.toJson(response.body()));*/
 
                     if(profile != null) {
                         setUserData(profile);
@@ -459,6 +467,38 @@ public class FragProfile extends Fragment {
             public void onFailure(Call<JSONObject> call, Throwable t) {
                 Log.d(TAG, "저장 실패2");
                 Log.d(TAG, t.getMessage());
+            }
+        });
+    }
+
+    private void logout() {
+        retrofitAPI = RetrofitClient.getApiService();
+
+        Call<JSONObject> call = retrofitAPI.logout(Token.getToken());
+        call.enqueue(new Callback<JSONObject>() {
+            @Override
+            public void onResponse(Call<JSONObject> call, Response<JSONObject> response) {
+                if(response.isSuccessful()) {
+                    PreferenceManager.clear(getContext());
+
+                    Intent intent = new Intent(getActivity(), LoginActivity.class);
+                    startActivity(intent);
+                } else {
+                    PreferenceManager.clear(getContext());
+
+                    Intent intent = new Intent(getActivity(), LoginActivity.class);
+                    startActivity(intent);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JSONObject> call, Throwable t) {
+                Log.d(TAG, t.getMessage());
+
+                PreferenceManager.clear(getContext());
+
+                Intent intent = new Intent(getActivity(), LoginActivity.class);
+                startActivity(intent);
             }
         });
     }
