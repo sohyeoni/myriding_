@@ -1,6 +1,5 @@
 package com.myriding.fragment;
 
-import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,8 +15,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.myriding.R;
 import com.myriding.atapter.RankRecyclerViewAdapter;
 import com.myriding.http.RetrofitAPI;

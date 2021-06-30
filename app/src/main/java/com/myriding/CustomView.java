@@ -12,9 +12,9 @@ import androidx.annotation.Nullable;
 
 public class CustomView extends View {
     final int round = 25;
-    final int leftPadding = 20;
-    final int rightPadding = 20;
-    final int topBottomPadding = 60;
+    final int leftPadding = 15;
+    final int rightPadding = 15;
+    final int topBottomPadding = 50;
 
     private Paint paint, grayPaint;
     public int senValue1 = 13, senValue2 = 13, senValue3 = 13;
@@ -54,7 +54,7 @@ public class CustomView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        int left = 380;
+        /* int left = 380;
         int right = 450;
         int top = 50;
         int bottom = 100;
@@ -113,6 +113,86 @@ public class CustomView extends View {
                 canvas.drawRoundRect(new RectF(left, top, right, bottom), round, round, grayPaint);
             }
             right = right + rightPadding;
+            top = top + topBottomPadding;
+            bottom = bottom + topBottomPadding;
+
+            if(i == 2) {
+                paint.setColor(Color.rgb(255, 148, 54));
+            } else if(i == 6) {
+                paint.setColor(Color.YELLOW);
+            }
+        }*/
+
+        int left = 225;
+        int right = left + 60;
+        int top = 50;
+        int bottom = 90;
+        paint.setColor(Color.RED);
+
+        for(int i = 0; i < 12; i++) {
+            if(i >= senValue1) {
+                canvas.drawRoundRect(new RectF(left, top, right, bottom), round, round, paint);
+            } else {
+                canvas.drawRoundRect(new RectF(left, top, right, bottom), round, round, grayPaint);
+            }
+
+            if(i > 7) {
+                left = left + leftPadding + 15;
+            } else {
+                left = left - leftPadding;
+            }
+
+            top = top + topBottomPadding;
+            bottom = bottom + topBottomPadding;
+
+            if(i == 2) {
+                paint.setColor(Color.rgb(255, 148, 54));
+            } else if(i == 6) {
+                paint.setColor(Color.YELLOW);
+            }
+        }
+
+        left = 295;
+        right = 415;
+        top = 50;
+        bottom = 90;
+        paint.setColor(Color.RED);
+
+        for(int i = 0; i < 12; i++) {
+            if(i >= senValue2) {
+                canvas.drawRoundRect(new RectF(left, top, right, bottom), round, round, paint);
+            } else {
+                canvas.drawRoundRect(new RectF(left, top, right, bottom), round, round, grayPaint);
+            }
+            top = top + topBottomPadding;
+            bottom = bottom + topBottomPadding;
+
+            if(i == 2) {
+                paint.setColor(Color.rgb(255, 148, 54));
+            } else if(i == 6) {
+                paint.setColor(Color.YELLOW);
+            }
+        }
+
+        left = 425;
+        right = 485;
+        top = 50;
+        bottom = 90;
+        paint.setColor(Color.RED);
+
+        for(int i = 0; i < 12; i++) {
+            if(i >= senValue3) {
+                canvas.drawRoundRect(new RectF(left, top, right, bottom), round, round, paint);
+            } else {
+                canvas.drawRoundRect(new RectF(left, top, right, bottom), round, round, grayPaint);
+            }
+
+            if(i > 7) {
+                right = right - rightPadding - 15;
+            } else {
+                right = right + rightPadding;
+            }
+
             top = top + topBottomPadding;
             bottom = bottom + topBottomPadding;
 

@@ -1,8 +1,5 @@
 package com.myriding.model;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
-
 public class BadgePreview {
     final static int MAX_NUM = 5;
     private String badgeType;

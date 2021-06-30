@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
@@ -31,9 +30,6 @@ import java.io.InputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -67,10 +63,12 @@ public class SignupActivity extends AppCompatActivity {
                 String passwordConfirmation = et_passwordConfirmation.getText().toString();
                 String nickname = et_nickname.getText().toString();
 
-                if(vaildateRegisterInfo(account, password, passwordConfirmation, nickname)) {
+                inserRegister(account, password, passwordConfirmation, nickname);
+
+                /*if(vaildateRegisterInfo(account, password, passwordConfirmation, nickname)) {
                     // Uri uri = Uri.parse("android.resource://com.myriding/drawable" + R.drawable.img_user);
                     inserRegister(account, password, passwordConfirmation, nickname);
-                }
+                }*/
             }
         });
     }
@@ -195,7 +193,7 @@ public class SignupActivity extends AppCompatActivity {
 
     public boolean isValidNickname(String nickname) {
         // String regex = "^[a-zA-Z0-9]{8,20}$";
-        String regex = "^[ㄱ-ㅎㅏ-ㅣ가-힣0-9]{3,15}$";
+        String regex = "^[ㄱ-ㅎㅏ-ㅣ가-힣0-9a-zA-Z]{3,15}$";
 
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(nickname);

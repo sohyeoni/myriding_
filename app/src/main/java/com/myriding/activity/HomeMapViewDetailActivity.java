@@ -14,23 +14,15 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.gson.JsonObject;
 import com.myriding.R;
 import com.myriding.http.RetrofitAPI;
 import com.myriding.http.RetrofitClient;
 import com.myriding.model.HomeDetailResponse;
-import com.myriding.model.HomeResponse;
-import com.myriding.model.HomeValue;
-import com.myriding.model.MongoValue;
 import com.myriding.model.Path;
-import com.myriding.model.RouteMongoValue;
 import com.myriding.model.Token;
-
-import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import retrofit2.Call;
@@ -39,7 +31,8 @@ import retrofit2.Response;
 
 public class HomeMapViewDetailActivity extends AppCompatActivity implements OnMapReadyCallback, Serializable {
     final static String TAG = "HomeMapViewDetailActivity";
-
+    // final static int PADDING = 350;
+    final static int PADDING = 150;
     GoogleMap mGoogleMap;
 
     @Override
@@ -128,7 +121,7 @@ public class HomeMapViewDetailActivity extends AppCompatActivity implements OnMa
             builder.include(secondPosition).include(thirdPosition);
         }
         LatLngBounds bounds = builder.build();
-        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 350));
+        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, PADDING));
         mGoogleMap.addPolyline(polylineOptions);
     }
 }

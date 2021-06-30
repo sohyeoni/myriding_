@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.myriding.R;
 import com.myriding.model.BadgePreview;
-import com.myriding.model.Profile;
 
 import java.util.List;
 

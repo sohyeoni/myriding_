@@ -9,7 +9,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.myriding.PreferenceManager;
@@ -62,12 +61,12 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         // 이전에 로그인 기록이 있을 경우, 자동 로그인
-        if(PreferenceManager.getString(getApplicationContext(), "user_id") != "" &&
+        /*if(PreferenceManager.getString(getApplicationContext(), "user_id") != "" &&
                 PreferenceManager.getString(getApplicationContext(), "user_pwd") != "") {
 
             requestLogin(PreferenceManager.getString(getApplicationContext(), "user_id"),
                     PreferenceManager.getString(getApplicationContext(), "user_pwd"));
-        }
+        }*/
     }
 
     private RetrofitAPI retrofitAPI;
@@ -95,6 +94,7 @@ public class LoginActivity extends AppCompatActivity {
                     PreferenceManager.setString(getApplicationContext(), "user_token", "Bearer " + token);
 
                     Intent intent = new Intent(getApplicationContext(), BottomNavigationActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
                 } else {
                     try {

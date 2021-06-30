@@ -1,15 +1,17 @@
 package com.myriding.activity;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Dialog;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -27,9 +29,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.Settings;
+import android.speech.RecognitionListener;
+import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -44,7 +49,6 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -62,7 +66,6 @@ import com.myriding.http.WeatherApiKey;
 import com.myriding.model.CourseDetailResponse;
 import com.myriding.model.Record;
 import com.myriding.model.RouteMongoValue;
-import com.myriding.model.RouteValue;
 import com.myriding.model.Token;
 import com.myriding.model.Weather;
 
@@ -77,12 +80,15 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
+import app.akexorcist.bluetotohspp.library.BluetoothSPP;
+import app.akexorcist.bluetotohspp.library.BluetoothState;
+import app.akexorcist.bluetotohspp.library.DeviceList;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -108,7 +114,6 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
     private Button btn_showSensor;
     private ImageButton btn_left;
     private ImageButton btn_right;
-    // private GoogleMap mGoogleMap;
 
     private boolean isRiding = false;
     private Thread timeThread = null;
@@ -121,10 +126,11 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
     private TextView tv_recSpeed;
     private TextView tv_miniRecSpeed;
     private TextView tv_recMaxSpeed;
-    private TextView tv_sensorValue;
     private TextView tv_recAvgSpeed;
     private TextView tv_currentLocation, tv_currentTemp, tv_currentWind;
     private CustomView customView;
+
+    private BluetoothSPP bt;
 
     Location lastLocation = null;
     List<Polyline> polylines = new ArrayList<>();
@@ -134,11 +140,7 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
     double totalDistance = 0.0;
     double maxSpeed = 0.0;
 
-    private String myIP;
-    private String clientIP;
-    Dialog myDialog;
     Thread thread;
-    private String sensorValue;
     Handler graphicHandler;
     Integer courseID = null;
     @Override
@@ -179,18 +181,72 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
             e.printStackTrace();
         }
 
+        bt = new BluetoothSPP(this); //initializing
+        if(!bt.isBluetoothAvailable()){ // 블루투스 사용 불가
+            Toast.makeText(getApplicationContext(), "Bluetooth is not available", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+
+        bt.setOnDataReceivedListener(new BluetoothSPP.OnDataReceivedListener() {
+            @Override
+            public void onDataReceived(byte[] data, String message) {
+
+                String[] read_data_arry;
+                //수신받은 데이터를 , 기준으로 split 함수로 짤라서 read_data_arry 배열에 저장한다
+                read_data_arry = message.split("\\,");
+                try {
+                    // bt.send("P",true);
+                    // 첫번째 데이터가 s이고, 마지막 데이터가 e라면 (데이터 정상 수신)
+                    if (read_data_arry[0].equals("s") && read_data_arry[4].equals("e")) {
+
+                        //파싱한 거리값 3개를 각각 변수에 저장
+                        customView.senValue1 = Integer.parseInt(read_data_arry[1]);
+                        customView.senValue2 = Integer.parseInt(read_data_arry[2]);
+                        customView.senValue3 = Integer.parseInt(read_data_arry[3]);
+
+                        // 텍스트뷰에 출력할 String 내용을 작성
+                        String read_distance = "";
+                        read_distance = customView.senValue1 + " : " + customView.senValue2 + " : " + customView.senValue3 + "";
+                        Log.e("bluet",read_distance);
+
+                        message = "";
+                    } else {
+                        Toast.makeText(RidingActivity.this, "READ: " + message, Toast.LENGTH_SHORT).show();
+                    }
+
+                } catch (Exception e) {
+                    Toast.makeText(RidingActivity.this, "READ: " + message + "\n\nERROR: " + e, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        bt.setBluetoothConnectionListener(new BluetoothSPP.BluetoothConnectionListener() { //연결 됐을떄
+            @Override
+            public void onDeviceConnected(String name, String address) {
+                Toast.makeText(getApplicationContext(), "Connected to " + name + "\n" + address, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onDeviceDisconnected() { //연결해제
+                Toast.makeText(getApplicationContext(), "Connection lost", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onDeviceConnectionFailed() { //연결실패
+                Toast.makeText(getApplicationContext(), "Unable to connect", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         startLocationService();
 
         // 후방 알림 사용여부 확인 후 연결 작업 실시
         showUseBackPhone();
-
 
         if(isUseBackPhone) {
             graphicHandler = new Handler();
             Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    getBackOjbectDistance();
                     graphicHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -232,12 +288,13 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
         tv_miniRecSpeed = (TextView) findViewById(R.id.riding_mini_rec_speed);
         tv_recMaxSpeed = (TextView) findViewById(R.id.riding_speed_max);
         tv_recAvgSpeed = (TextView) findViewById(R.id.riding_speed_avg_time);
-        // tv_sensorValue = (TextView) findViewById(R.id.sensor_value);
         customView = (CustomView) findViewById(R.id.customView);
 
         tv_currentLocation = (TextView) findViewById(R.id.riding_current_location);
         tv_currentTemp = (TextView) findViewById(R.id.riding_current_weather);
         tv_currentWind = (TextView) findViewById(R.id.riding_current_wind);
+
+        // recognizierInit();
     }
 
     private GoogleMap map;
@@ -345,10 +402,10 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
             currentLocationAddress = getCurrentAddress(latitude, longitude);
             if(startPointAddress == null) {
                 startPointAddress = currentLocationAddress;
-                Log.d(TAG + "Start", startPointAddress);
+                // Log.d(TAG + "Start", startPointAddress);
             } else {
                 endPointAddress = currentLocationAddress;
-                Log.d(TAG + "End", endPointAddress);
+                // Log.d(TAG + "End", endPointAddress);
             }
             showCurrentLocation(latitude, longitude);
 
@@ -399,7 +456,7 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
 
             int updateTime = totalTime;
 
-            if(lastLocation != null && isRiding && updateTime % 3 == 0)
+            if(lastLocation != null && isRiding && updateTime % 5 == 0)
                 drawDirections(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()), curPoint);
         }
 
@@ -457,6 +514,17 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
 
         if(manager != null && gpsListener != null)
             manager.removeUpdates(gpsListener);
+
+        /*if(tts!=null){
+            tts.stop();
+            tts.shutdown();
+            tts=null;
+        }
+        if(mRecognizer!=null){
+            mRecognizer.destroy();
+            mRecognizer.cancel();
+            mRecognizer=null;
+        }*/
     }
 
     @SuppressLint("MissingPermission")
@@ -491,17 +559,24 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
         timeHandler = new TimeHandler();
         timeThread.start();
 
+        /*if(isUseBackPhone) {
+            if(ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.RECORD_AUDIO)!= PackageManager.PERMISSION_GRANTED){
+                Log.d(TAG, "권한 미허용");
+                ActivityCompat.requestPermissions(RidingActivity.this,new String[]{Manifest.permission.RECORD_AUDIO},1);
+                //권한을 허용하지 않는 경우
+            }else{
+                //권한을 허용한 경우
+                try {
+                    Log.d(TAG, "권한 허용");
+                    mRecognizer.startListening(SttIntent);
+                }catch (SecurityException e){e.printStackTrace();}
+            }
+        }*/
+
         clickRestart(view);
     }
 
     public void clickPause(View view) {
-        /*thread = new Thread(){
-            public void run(){
-                sendSignaltoBackPhone("P");
-            }
-        };
-        thread.start();*/
-
         startLinearLayout.setVisibility(View.GONE);
         pauseLinearLayout.setVisibility(View.GONE);
         restartStopLinearLayout.setVisibility(View.VISIBLE);
@@ -519,9 +594,10 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
             if (!isFirst) {
                 thread = new Thread() {
                     public void run() {
-                        //if(lastSignal == "S")
                         Log.d(TAG, "START");
-                        sendSignaltoBackPhone("S");
+                        //sendSignaltoBackPhone("S");
+                        bt.send("S", true);
+                        Log.d(TAG, "S");
                     }
                 };
                 thread.start();
@@ -534,7 +610,6 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
             isRiding = true;
     }
 
-    // TODO: 거리와 시간 확인 후 저장 dialog 또는 삭제 / 종료 dialog
     public void clickStop(View view) {
         endDialog();
     }
@@ -542,8 +617,8 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
     public void clickLeftSignal(View view) {
         thread = new Thread(){
             public void run(){
-                //if(lastSignal == "S")
-                sendSignaltoBackPhone("L");
+                bt.send("L", true);
+                Log.d(TAG, "L");
             }
         };
         thread.start();
@@ -553,8 +628,8 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
     public void clickRightSignal(View view) {
         thread = new Thread(){
             public void run(){
-                //if(lastSignal == "S")
-                sendSignaltoBackPhone("R");
+                bt.send("R", true);
+                Log.d(TAG, "R");
             }
         };
         thread.start();
@@ -654,20 +729,21 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
                 thread = new Thread() {
                     public void run() {
                         if(speedTemp < 1 && lastSignal != "P") {
-                        // if (speedTemp < 1) {
-                            sendSignaltoBackPhone("P");
+                         //if (speedTemp < 1) {
+                            bt.send("P", true);
                             lastSignal = "P";
+                            Log.d(TAG, "P");
                         } else if(speedTemp > 1 && lastSignal != "S" && isRiding == true) {
-                        // } else if (speedTemp > 1) {
-                            sendSignaltoBackPhone("S");
+                         //} else if (speedTemp > 1) {
+                            bt.send("S", true);
                             lastSignal = "S";
+                            Log.d(TAG, "S");
                         }
+
                     }
                 };
                 thread.start();
             }
-
-
         }
     }
 
@@ -693,13 +769,20 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
     /* 후방 휴대폰 사용 여부 확인창 */
     private void showUseBackPhone() {
         final AlertDialog.Builder dialog = new AlertDialog.Builder(this );
-        dialog.setMessage("후방 휴대폰을 사용하여 위험 요소 알림을 받으시겠습니까?")
+        dialog.setMessage("후방의 위험 요소 알림 및 방향지시등 기능을 사용하시겠습니까?")
                 .setPositiveButton("사용", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         isUseBackPhone = true;
+
+                        if(bt.getServiceState() == BluetoothState.STATE_CONNECTED){
+                            bt.disconnect();
+                        }else{
+                            Intent intent = new Intent(getApplicationContext(), DeviceList.class);
+                            startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
+                        }
                         //if(isUseBackPhone) {
-                        connectBackPhone();
+                        // connectBackPhone();
                         //}
                     }
                 })
@@ -716,7 +799,6 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
 
     /* 라이딩 기록에 따른 dialog 출력 메서드 */
     private void endDialog() {
-        // TODO 후방에 종료 신호 주기 -> 후방에서는 블루투스 및 소켓 대기 종료 작업
         final EditText et_ridingName = new EditText(RidingActivity.this);
         AlertDialog.Builder dialog = new AlertDialog.Builder(RidingActivity.this);
 
@@ -748,8 +830,9 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
                     e.printStackTrace();
                 }
 
-                Log.d(TAG + "[RECORD] : ", distanceTemp + ", " + avgSpeedTemp + ", " + maxSpeed);
-                Log.d(TAG + "[RECORD] : ", (myRecordForJson instanceof JSONArray) ? "true" : "false");
+                Log.d(TAG, "라이딩 일지 저장");
+                Log.d(TAG, distanceTemp + ", " + avgSpeedTemp + ", " + maxSpeed);
+                Log.d(TAG, (myRecordForJson instanceof JSONArray) ? "true" : "false");
 
                 setMyRecord(title, distanceTemp, time, startPointAddress, endPointAddress, avgSpeedTemp, maxSpeed, courseID, myRecordForJson);
 
@@ -767,188 +850,19 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
         dialog.show();
     }
 
-    public static String getIPAddress(boolean useIPv4) {
-        try {
-            List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
-            for (NetworkInterface intf : interfaces) {
-                List<InetAddress> addrs = Collections.list(intf.getInetAddresses());
-                for (InetAddress addr : addrs) {
-                    if (!addr.isLoopbackAddress()) {
-                        String sAddr = addr.getHostAddress();
-                        //boolean isIPv4 = InetAddressUtils.isIPv4Address(sAddr);
-                        boolean isIPv4 = sAddr.indexOf(':')<0;
-
-                        if (useIPv4) {
-                            if (isIPv4)
-                                return sAddr;
-                        } else {
-                            if (!isIPv4) {
-                                int delim = sAddr.indexOf('%'); // drop ip6 zone suffix
-                                return delim<0 ? sAddr.toUpperCase() : sAddr.substring(0, delim).toUpperCase();
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (Exception ex) { } // for now eat exceptions
-        return "1";
-    }
-
-    /* 후방 휴대폰의 IP를 얻기 위한 소켓통신 메서드 (이거 사용) */
-    class SignalThread extends Thread {
-        @Override
-        public void run() {
-            int port = 10000;
-
-            try {
-                ServerSocket server = new ServerSocket(port);
-
-                Socket socket = server.accept();
-                InetAddress clientHost = socket.getLocalAddress();
-                int clientPort = socket.getPort();
-                printServerLog("클라이언트 연결됨 : " + clientHost + " : " + clientPort);
-
-                ObjectInputStream instream = new ObjectInputStream(socket.getInputStream());
-                Object obj = instream.readObject();
-                printServerLog("데이터 받음 : " + obj);
-
-                ObjectOutputStream outstream = new ObjectOutputStream(socket.getOutputStream());
-                outstream.writeObject(obj + " from Server.");
-                outstream.flush();
-                printServerLog("데이터 보냄");
-                printServerLog(obj.toString());
-                clientIP = obj.toString();
-                myDialog.dismiss();
-                isUseBackPhone = true;
-                Log.d("thread", "signal thread");
-                socket.close();
-            } catch (Exception e) {
-                e.printStackTrace();
+    public void onStart() {
+        super.onStart();
+        // 블루투스가 비활성일떄 작업실행
+        if (!bt.isBluetoothEnabled()) { //
+            Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(intent, BluetoothState.REQUEST_ENABLE_BT);
+        } else {
+            //블루투스가 화성화 된 경우 작업 실행
+            if (!bt.isServiceAvailable()) {
+                bt.setupService();
+                bt.startService(BluetoothState.DEVICE_OTHER); //DEVICE_ANDROID는 안드로이드 기기 끼리
             }
         }
-    }
-
-    /* 방향지시등 데이터를 보내기 위해 QR코드를 이용하여 후방 휴대폰의 IP 획득 메서드 */
-    private void connectBackPhone() {
-        myDialog = new Dialog(RidingActivity.this);
-        myDialog.setContentView(R.layout.riding_qrcord);
-        myDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-
-        ImageView img_qrcode = (ImageView) myDialog.findViewById(R.id.qrcode);
-
-        myIP = getIPAddress(true);
-
-        /*new Thread(new Runnable() {
-            @Override
-            public void run() {
-                getClientIpForSignal();
-            }
-        }).start();*/
-
-        SignalThread signalThread = new SignalThread();
-        signalThread.start();
-
-        // QR코드 생성
-        MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
-        try{
-            BitMatrix bitMatrix = multiFormatWriter.encode(myIP, BarcodeFormat.QR_CODE,200,200);
-            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-            Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
-            img_qrcode.setImageBitmap(bitmap);
-            myDialog.show();
-        }catch (Exception e){}
-    }
-
-    /* 후방 휴대폰의 IP를 얻기 위한 소켓통신 메서드 */
-    public void getClientIpForSignal() {
-        try {
-            int port = 10000;
-
-            // 서버 소켓 객체 생성
-            ServerSocket server = new ServerSocket(port);
-
-            while(true) {
-                Socket socket = server.accept();
-                InetAddress clientHost = socket.getLocalAddress();
-                int clientPort = socket.getPort();
-                printServerLog("클라이언트 연결됨 : " + clientHost + " : " + clientPort);
-
-                ObjectInputStream instream = new ObjectInputStream(socket.getInputStream());
-                Object obj = instream.readObject();
-                printServerLog("데이터 받음 : " + obj);
-
-                ObjectOutputStream outstream = new ObjectOutputStream(socket.getOutputStream());
-                outstream.writeObject(obj + " from Server.");
-                outstream.flush();
-                printServerLog("데이터 보냄");
-                printServerLog(obj.toString());
-                clientIP = obj.toString();
-                myDialog.dismiss();
-                isUseBackPhone = true;
-                socket.close();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /* 후방 객체와의 거리를 후방 휴대폰으로부터 획득하기 위한 메서드 */
-    public void getBackOjbectDistance() {
-        try {
-            int port = 10001;
-
-            // 서버 소켓 객체 생성
-            ServerSocket server = new ServerSocket(port);
-
-            while(true) {
-                Socket socket = server.accept();
-                InetAddress clientHost = socket.getLocalAddress();
-                int clientPort = socket.getPort();
-                printServerLog("클라이언트 연결됨 : " + clientHost + " : " + clientPort);
-
-                ObjectInputStream instream = new ObjectInputStream(socket.getInputStream());
-                Object obj = instream.readObject();
-                printServerLog("데이터 받음 : " + obj);
-
-                Log.d(TAG, obj.toString());
-
-                sensorValue = obj.toString();
-                // customView.senValue1 = Integer.parseInt(sensorValue);
-
-                String[] senValueArr = sensorValue.split(" : ");
-                customView.senValue1 = Integer.parseInt(senValueArr[0]);
-                customView.senValue2 = Integer.parseInt(senValueArr[1]);
-                customView.senValue3 = Integer.parseInt(senValueArr[2]);
-
-                socket.close();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /* 후방 휴대폰에 방향지시등 정보 전송용 소켓통신 메서드 */
-    public void sendSignaltoBackPhone(String data) {
-        try {
-            int port = 10002;
-
-            Socket socket = new Socket(clientIP, port);
-            Log.d(TAG, "방향지시등 전송용 소켓 연결");
-
-            // 데이터 전송
-            ObjectOutputStream outstream = new ObjectOutputStream(socket.getOutputStream());
-            outstream.writeObject(data);
-            outstream.flush();
-            Log.d(TAG, data + " 방향지시등 전송 완료");
-
-            socket.close();
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void printServerLog(final String data) {
-        Log.d("MainActivity", data);
     }
 
     /* 내 라이딩 코스 획득 메서드 */
@@ -968,7 +882,10 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
                     if(isUseBackPhone) {
                         thread = new Thread() {
                             public void run() {
-                                sendSignaltoBackPhone("E");
+                                // sendSignaltoBackPhone("E");
+                                bt.send("E",true);
+                                lastSignal = "E";
+                                Log.d(TAG, "E");
                             }
                         };
                         thread.start();
@@ -1028,20 +945,6 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
         });
     }
 
-    private String parseDegree(double degree) {
-        String[] sectors = new String[]{ "북", "북동", "동", "남동", "남", "남서", "서", "북서" };
-
-        degree += 22.5;
-
-        if (degree < 0)
-            degree = 360 - Math.abs(degree) % 360;
-        else
-            degree = degree % 360;
-
-        int which = (int)(degree / 45);
-        return sectors[which];
-    }
-
     private void getDetailCourse(int id) {
         retrofitAPI = RetrofitClient.getApiService();
 
@@ -1082,4 +985,166 @@ public class RidingActivity extends AppCompatActivity implements Button.OnClickL
         // map.animateCamera(CameraUpdateFactory.newLatLngZoom(startPosition, 15));
         map.addPolyline(naviPolylineOptions);
     }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == BluetoothState.REQUEST_CONNECT_DEVICE) {
+            if (resultCode == Activity.RESULT_OK)
+                bt.connect(data);
+        } else if (requestCode == BluetoothState.REQUEST_ENABLE_BT) {
+            if (resultCode == Activity.RESULT_OK) {
+                bt.setupService();
+                bt.startService(BluetoothState.DEVICE_OTHER);
+            } else {
+                Toast.makeText(getApplicationContext()
+                        , "Bluetooth was not enabled."
+                        , Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        }
+    }
+
+/*    private void recognizierInit() {
+        //음성인식
+        SttIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        SttIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,getApplicationContext().getPackageName());
+        SttIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,"ko-KR");//한국어 사용
+        mRecognizer= SpeechRecognizer.createSpeechRecognizer(getApplicationContext());
+        mRecognizer.setRecognitionListener(listener);
+
+        //음성출력 생성, 리스너 초기화
+        tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if(status!=android.speech.tts.TextToSpeech.ERROR){
+                    tts.setLanguage(Locale.KOREAN);
+                }
+            }
+        });
+    }
+
+
+    Intent SttIntent;
+    SpeechRecognizer mRecognizer;
+    TextToSpeech tts;
+    // 리스너 함수
+    private RecognitionListener listener = new RecognitionListener() {
+        @Override
+        public void onReadyForSpeech(Bundle bundle) {
+            Log.d(TAG, "onReadyForSpeech");
+        }
+
+        @Override
+        public void onBeginningOfSpeech() {
+            Log.d(TAG, "지금부터 말을 해주세요");
+        }
+
+        @Override
+        public void onRmsChanged(float v) {
+            Log.d(TAG, "onRmsChanged");
+        }
+
+        @Override
+        public void onBufferReceived(byte[] bytes) {
+            Log.d(TAG, "onBufferReceived");
+        }
+
+        @Override
+        public void onEndOfSpeech() {
+            Log.d(TAG, "onEndOfSpeech");
+        }
+
+        @Override
+        public void onError(int i) {
+            Log.d(TAG, "천천히 다시 말해 주세요");
+            new android.os.Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        mRecognizer.startListening(SttIntent);
+                    }catch (SecurityException e){
+                        e.printStackTrace();
+                    }
+                }
+            },2500);
+        }
+
+        @Override
+        public void onResults(Bundle results) {
+            String key= "";
+            key = SpeechRecognizer.RESULTS_RECOGNITION;
+            ArrayList<String> mResult =results.getStringArrayList(key);
+            String[] rs = new String[mResult.size()];
+            mResult.toArray(rs);
+            Log.d(TAG, rs[0]);
+            FuncVoiceOrderCheck(rs[0]);
+            mRecognizer.startListening(SttIntent);
+
+        }
+
+        @Override
+        public void onPartialResults(Bundle bundle) {
+            Log.d(TAG, "onPartialResults");
+        }
+
+
+        public void onEvent(int i, Bundle bundle) {
+            Log.d(TAG, "onEvent");
+        }
+    };
+
+    // 음성 동작 함수
+    // 입력된 음성 메세지 확인 후 동작 처리
+    private void FuncVoiceOrderCheck(String VoiceMsg){
+        if(VoiceMsg.length()<1)return;
+
+        VoiceMsg=VoiceMsg.replace(" ","");//공백제거
+        if(VoiceMsg.indexOf("왼쪽")>-1){
+            Log.d(TAG, "왼쪽");
+            FuncVoiceOut("왼쪽");
+
+            thread = new Thread(){
+                public void run(){
+                    bt.send("L", true);
+                    lastSignal = "L";
+                    Log.d(TAG, "L");
+                }
+            };
+            thread.start();
+        }else if(VoiceMsg.indexOf("오른쪽")>-1){
+            Log.d(TAG, "오른쪽");
+            FuncVoiceOut("오른쪽");
+
+            thread = new Thread(){
+                public void run(){
+                    bt.send("R", true);
+                    lastSignal = "R";
+                    Log.d(TAG, "R");
+                }
+            };
+            thread.start();
+        }else if(VoiceMsg.indexOf("멈춰")>-1){
+            Log.d(TAG, "멈춰");
+            FuncVoiceOut("멈춰");
+
+            thread = new Thread(){
+                public void run(){
+                    bt.send("P", true);
+                    lastSignal = "P";
+                    Log.d(TAG, "P");
+                }
+            };
+            thread.start();
+        }
+    }
+
+    //음성 메세지 출력용 함수
+    private void FuncVoiceOut(String OutMsg){
+        if(OutMsg.length()<1)return;
+
+        tts.setPitch(1.0f);//목소리 톤1.0
+        tts.setSpeechRate(1.0f);//목소리 속도
+        tts.speak(OutMsg, TextToSpeech.QUEUE_FLUSH,null);
+    }*/
+
 }

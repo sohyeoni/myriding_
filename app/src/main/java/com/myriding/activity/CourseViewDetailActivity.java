@@ -2,7 +2,6 @@ package com.myriding.activity;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.media.Image;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -33,10 +32,8 @@ import com.myriding.model.RouteValue;
 import com.myriding.model.Token;
 
 import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import retrofit2.Call;
@@ -198,7 +195,8 @@ public class CourseViewDetailActivity extends AppCompatActivity implements OnMap
         }
 
         LatLngBounds bounds = builder.build();
-        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 350));
+        // mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 350));
+        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 200));
         mGoogleMap.addPolyline(polylineOptions);
     }
 

@@ -1,12 +1,9 @@
 package com.myriding.fragment;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
@@ -15,18 +12,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -34,14 +26,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.myriding.R;
 import com.myriding.activity.HomeMapViewDetailActivity;
-import com.myriding.activity.MyCourseMoreActivity;
-import com.myriding.activity.SearchActivity;
-import com.myriding.atapter.HomeRecyclerViewAdapter;
-import com.myriding.atapter.RankRecyclerViewAdapter;
 import com.myriding.http.RetrofitAPI;
 import com.myriding.http.RetrofitClient;
 import com.myriding.model.Home;
@@ -49,7 +35,6 @@ import com.myriding.model.HomeValue;
 import com.myriding.model.HomeResponse;
 import com.myriding.model.MongoValue;
 import com.myriding.model.MysqlValue;
-import com.myriding.model.RouteMongoValue;
 import com.myriding.model.Token;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.CalendarMode;
@@ -58,10 +43,6 @@ import com.prolificinteractive.materialcalendarview.DayViewFacade;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
 
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.FileOutputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -74,7 +55,8 @@ import retrofit2.Response;
 
 public class FragHome extends Fragment implements OnMapReadyCallback {
     final static String TAG = "FragHome";
-
+    final static int PADDING = 150;
+    // final static int PADDING = 300;
     DecimalFormat dataFormat = new DecimalFormat("#.##");
 
     private View view;
@@ -164,12 +146,12 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // 초기 데이터 획득
+        /*// 초기 데이터 획득
         selectYear = CalendarDay.today().getYear();
         selectMonth =  CalendarDay.today().getMonth() + 1;
         selectDay = CalendarDay.today().getDay();
 
-        getOnedayRecord(selectYear, selectMonth, selectDay);
+        getOnedayRecord(selectYear, selectMonth, selectDay);*/
     }
 
     @Override
@@ -209,6 +191,12 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
         mMap.getUiSettings().setZoomControlsEnabled(false);
         mMap.getUiSettings().setAllGesturesEnabled(false);
 
+        // 초기 데이터 획득
+        selectYear = CalendarDay.today().getYear();
+        selectMonth =  CalendarDay.today().getMonth() + 1;
+        selectDay = CalendarDay.today().getDay();
+
+        getOnedayRecord(selectYear, selectMonth, selectDay);
     }
 
     private void initCalendar(final View view, final @Nullable Bundle savedInstanceState) {
@@ -409,6 +397,8 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
 
             if (mMap != null) mMap.clear();
 
+            if(mMap == null) Log.d(TAG, "MAP IS NULL");
+
             // 경로의 중간지점을 중심으로 카메라 줌
             LatLng startPosition = new LatLng(
                     lstHome.get(currentPost).getArrayPoints().get(0).latitude,
@@ -438,7 +428,7 @@ public class FragHome extends Fragment implements OnMapReadyCallback {
                 builder.include(secondPosition).include(thirdPosition);
             }
             LatLngBounds bounds = builder.build();
-            mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 300));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, PADDING));
             mMap.addPolyline(polylineOptions);
         }
 

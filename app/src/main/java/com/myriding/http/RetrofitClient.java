@@ -2,7 +2,6 @@ package com.myriding.http;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.myriding.http.RetrofitAPI;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;

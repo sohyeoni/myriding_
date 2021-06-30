@@ -8,7 +8,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -45,7 +44,6 @@ import com.myriding.PreferenceManager;
 import com.myriding.R;
 import com.myriding.activity.BadgeHomeActivity;
 import com.myriding.activity.LoginActivity;
-import com.myriding.activity.SearchActivity;
 import com.myriding.atapter.ProfileRecyclerViewAdapter;
 import com.myriding.http.RetrofitAPI;
 import com.myriding.http.RetrofitClient;
@@ -478,17 +476,11 @@ public class FragProfile extends Fragment {
         call.enqueue(new Callback<JSONObject>() {
             @Override
             public void onResponse(Call<JSONObject> call, Response<JSONObject> response) {
-                if(response.isSuccessful()) {
-                    PreferenceManager.clear(getContext());
+                PreferenceManager.clear(getContext());
 
-                    Intent intent = new Intent(getActivity(), LoginActivity.class);
-                    startActivity(intent);
-                } else {
-                    PreferenceManager.clear(getContext());
-
-                    Intent intent = new Intent(getActivity(), LoginActivity.class);
-                    startActivity(intent);
-                }
+                Intent intent = new Intent(getActivity(), LoginActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
             }
 
             @Override
@@ -498,6 +490,7 @@ public class FragProfile extends Fragment {
                 PreferenceManager.clear(getContext());
 
                 Intent intent = new Intent(getActivity(), LoginActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
             }
         });

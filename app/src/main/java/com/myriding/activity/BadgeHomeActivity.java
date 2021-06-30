@@ -16,7 +16,6 @@ import com.myriding.atapter.BadgeSectionViewAdapter;
 import com.myriding.http.RetrofitAPI;
 import com.myriding.http.RetrofitClient;
 import com.myriding.model.Badge;
-import com.myriding.model.BadgePreview;
 import com.myriding.model.Token;
 
 import org.json.JSONObject;
@@ -55,15 +54,6 @@ public class BadgeHomeActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(new GridLayoutManager(this, 4));
 
         mAdapter = new BadgeRecyclerViewAdapter(this);
-        /*for(int i = 0; i < TOTAL_BADGE_MAX_NUM; i++) {
-            if(i < 5) {
-                mAdapter.addItem(i, new Badge(R.drawable.img_badge_distance, "Badge" + i));
-            } else if(i < 10) {
-                mAdapter.addItem(i, new Badge(R.drawable.img_badge_speed, "Badge" + i));
-            } else {
-                mAdapter.addItem(i, new Badge(R.drawable.img_badge_time, "Badge" + i));
-            }
-        }*/
 
         for(int i = 0; i < BADGE_MAX_NUM; i++) {
             if(i < badgeCounts[0]) {
